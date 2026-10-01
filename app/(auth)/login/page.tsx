@@ -106,7 +106,7 @@ export default function LoginPage() {
         <div className="my-12 relative z-10 max-w-lg space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
             <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Phase 2: Verified JWT Auth & RBAC Active</span>
+            <span>Face • Campus location • Liveness • Explainable analytics</span>
           </div>
 
           <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
@@ -134,7 +134,7 @@ export default function LoginPage() {
 
         <div className="relative z-10 text-xs text-slate-400 flex items-center justify-between border-t border-slate-800/80 pt-6">
           <p>© 2026 AttendIQ. All rights reserved.</p>
-          <p className="text-indigo-400 font-mono text-[11px]">Phase 2 Auth System</p>
+          <p className="text-indigo-400 font-mono text-[11px]">Secure role-based access</p>
         </div>
       </div>
 
@@ -251,7 +251,7 @@ export default function LoginPage() {
           </form>
 
           <div className="text-center text-xs text-slate-400 border-t border-slate-800/80 pt-4">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <a href="#" className="text-indigo-400 font-medium hover:underline">
               Contact your administrator
             </a>

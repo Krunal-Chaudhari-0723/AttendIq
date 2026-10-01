@@ -29,15 +29,15 @@ import { useAuth } from "@/lib/auth/auth-context";
 export type UserRole = "ADMIN" | "TEACHER" | "STUDENT";
 
 interface SidebarProps {
-  role?: UserRole;
-  onRoleChange?: (role: UserRole) => void;
+  onNavigate?: () => void;
 }
 
-export function Sidebar({ role: overrideRole, onRoleChange }: SidebarProps) {
+export function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
-  const activeRole: UserRole = overrideRole || (user ? user.role : "ADMIN");
+  // Navigation always follows the authenticated role; the server enforces access regardless
+  const activeRole: UserRole | null = user ? user.role : null;
 
   const navItems = {
     ADMIN: [
@@ -50,6 +50,7 @@ export function Sidebar({ role: overrideRole, onRoleChange }: SidebarProps) {
       { name: "Face Enrollment", href: "/admin/face-enrollment", icon: ScanFace },
       { name: "Campus Settings", href: "/admin/campus-settings", icon: MapPin },
       { name: "Reports & Analytics", href: "/admin/reports", icon: FileBarChart },
+      { name: "Notifications", href: "/admin/notifications", icon: Bell },
       { name: "Settings", href: "/admin/settings", icon: Settings },
     ],
     TEACHER: [
@@ -60,22 +61,25 @@ export function Sidebar({ role: overrideRole, onRoleChange }: SidebarProps) {
       { name: "Students", href: "/teacher/students", icon: Users },
       { name: "Engagement", href: "/teacher/engagement", icon: Activity },
       { name: "Risk Analysis", href: "/teacher/risk-analysis", icon: AlertTriangle },
-      { name: "AI Recommendations", href: "/teacher/recommendations", icon: Lightbulb },
+      { name: "Recommendations", href: "/teacher/recommendations", icon: Lightbulb },
       { name: "Reports", href: "/teacher/reports", icon: FileBarChart },
+      { name: "Notifications", href: "/teacher/notifications", icon: Bell },
+      { name: "Profile", href: "/teacher/profile", icon: User },
     ],
     STUDENT: [
       { name: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
       { name: "My Attendance", href: "/student/attendance", icon: CheckCircle },
       { name: "Live Attendance", href: "/student/live-attendance", icon: Radio },
+      { name: "Face Enrollment", href: "/student/face-enrollment", icon: ScanFace },
       { name: "Engagement", href: "/student/engagement", icon: Activity },
       { name: "Performance", href: "/student/performance", icon: FileBarChart },
-      { name: "AI Recommendations", href: "/student/recommendations", icon: Lightbulb },
+      { name: "Recommendations", href: "/student/recommendations", icon: Lightbulb },
       { name: "Notifications", href: "/student/notifications", icon: Bell },
       { name: "Profile", href: "/student/profile", icon: User },
     ],
   };
 
-  const currentNav = navItems[activeRole] || navItems.ADMIN;
+  const currentNav = activeRole ? navItems[activeRole] : [];
 
   return (
     <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col h-screen sticky top-0 shrink-0 border-r border-slate-800 shadow-xl select-none z-30">
@@ -96,27 +100,10 @@ export function Sidebar({ role: overrideRole, onRoleChange }: SidebarProps) {
         </Link>
       </div>
 
-      {/* Role Selector Badge (Phase 2 Auth Info) */}
+      {/* Signed-in role (from the verified session) */}
       <div className="px-4 py-3 border-b border-slate-800/60 bg-slate-950/40">
-        <p className="text-[10px] font-semibold uppercase text-slate-500 mb-1.5 px-2">
-          Active Role Session
-        </p>
-        <div className="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
-          {(["ADMIN", "TEACHER", "STUDENT"] as UserRole[]).map((r) => (
-            <button
-              key={r}
-              onClick={() => onRoleChange && onRoleChange(r)}
-              className={cn(
-                "py-1 px-1.5 text-[10px] font-semibold rounded text-center transition-all",
-                activeRole === r
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-              )}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
+        <p className="text-[10px] font-semibold uppercase text-slate-500 mb-1 px-2">Signed in as</p>
+        <p className="px-2 text-xs font-bold text-indigo-300 tracking-wide">{activeRole ?? "…"}</p>
       </div>
 
       {/* Navigation Links */}
@@ -134,6 +121,7 @@ export function Sidebar({ role: overrideRole, onRoleChange }: SidebarProps) {
             <Link
               key={item.name}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all group",
                 isActive
@@ -163,14 +151,14 @@ export function Sidebar({ role: overrideRole, onRoleChange }: SidebarProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5 overflow-hidden">
             <div className="w-8 h-8 rounded-full bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 font-semibold text-xs flex items-center justify-center shrink-0">
-              {(user?.name || activeRole).charAt(0)}
+              {(user?.name || "?").charAt(0)}
             </div>
             <div className="truncate">
               <p className="text-xs font-semibold text-slate-200 truncate">
-                {user?.name || (activeRole === "ADMIN" ? "System Admin" : activeRole === "TEACHER" ? "Prof. Sharma" : "Anand Chaudhari")}
+                {user?.name}
               </p>
               <p className="text-[10px] text-slate-400 uppercase tracking-wide font-medium">
-                {user?.email ? user.email.split("@")[0] : activeRole}
+                {user?.email}
               </p>
             </div>
           </div>

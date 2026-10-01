@@ -11,6 +11,7 @@ export interface IUser extends Document {
   studentId?: string;
   teacherId?: string;
   isActive: boolean;
+  passwordChangedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   matchPassword(enteredPassword: string): Promise<boolean>;
@@ -55,6 +56,9 @@ const UserSchema = new Schema<IUser>(
       type: Boolean,
       default: true,
     },
+    passwordChangedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -68,6 +72,8 @@ UserSchema.pre("save", async function (next) {
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password as string, salt);
+  // Tokens issued before this moment become invalid (see authenticate middleware)
+  if (!this.isNew) this.passwordChangedAt = new Date(Date.now() - 1000);
   next();
 });
 

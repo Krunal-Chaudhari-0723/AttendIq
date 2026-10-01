@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { config } from "../config/env";
-import { User, IUser, UserRole } from "../models/User";
+import { User, UserRole } from "../models/User";
 import { sendResponse } from "../utils/apiResponse";
 
 export interface AuthenticatedRequest extends Request {
@@ -17,100 +17,61 @@ export interface AuthenticatedRequest extends Request {
 
 interface JwtPayload {
   id: string;
-  email: string;
-  role: UserRole;
   iat?: number;
   exp?: number;
 }
 
-export const authenticate = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
+/**
+ * Verifies the JWT (HTTP-only cookie or Bearer header) and loads the user from the database.
+ * Role and identity always come from the database record — never from the token or the request body.
+ */
+export const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     let token: string | undefined;
-
-    // 1. Extract token from HTTP-only cookie
-    if (req.cookies && req.cookies.attendiq_token) {
+    if (req.cookies?.attendiq_token) {
       token = req.cookies.attendiq_token;
+    } else if (req.headers.authorization?.startsWith("Bearer ")) {
+      token = req.headers.authorization.slice(7);
     }
-    // 2. Extract token from Authorization header fallback
-    else if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
-
     if (!token) {
-      return sendResponse({
-        res,
-        statusCode: 401,
-        error: "Authentication required. Please sign in to access this resource.",
-      });
+      return sendResponse({ res, statusCode: 401, error: "Authentication required. Please sign in to access this resource." });
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
-
-    // Attempt to load full user details or use token payload
-    let userDetails = await User.findById(decoded.id).select("-password");
-    
-    if (!userDetails) {
-      // In offline/in-memory mode if DB is disconnected, fallback to payload
-      req.user = {
-        _id: decoded.id,
-        name: decoded.email.split("@")[0],
-        email: decoded.email,
-        role: decoded.role,
-      };
-    } else {
-      if (!userDetails.isActive) {
-        return sendResponse({
-          res,
-          statusCode: 403,
-          error: "Account disabled. Please contact your institution admin.",
-        });
-      }
-      req.user = {
-        _id: userDetails._id.toString(),
-        name: userDetails.name,
-        email: userDetails.email,
-        role: userDetails.role,
-        studentId: userDetails.studentId,
-        teacherId: userDetails.teacherId,
-      };
+    const decoded = jwt.verify(token, config.jwtSecret, { algorithms: ["HS256"] }) as JwtPayload;
+    const user = await User.findById(decoded.id).select("name email role studentId teacherId isActive passwordChangedAt");
+    if (!user) {
+      return sendResponse({ res, statusCode: 401, error: "Your account no longer exists. Please sign in again." });
+    }
+    if (!user.isActive) {
+      return sendResponse({ res, statusCode: 403, error: "Account disabled. Please contact your institution admin." });
+    }
+    // Tokens issued before the last password change are no longer valid
+    if (user.passwordChangedAt && decoded.iat && decoded.iat * 1000 < user.passwordChangedAt.getTime()) {
+      return sendResponse({ res, statusCode: 401, error: "Your password was changed. Please sign in again." });
     }
 
+    req.user = {
+      _id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      studentId: user.studentId,
+      teacherId: user.teacherId,
+    };
     next();
-  } catch (error) {
-    return sendResponse({
-      res,
-      statusCode: 401,
-      error: "Invalid or expired session token. Please sign in again.",
-    });
+  } catch {
+    return sendResponse({ res, statusCode: 401, error: "Invalid or expired session token. Please sign in again." });
   }
 };
 
 export const authorize = (...allowedRoles: UserRole[]) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return sendResponse({
-        res,
-        statusCode: 401,
-        error: "Authentication required.",
-      });
+      return sendResponse({ res, statusCode: 401, error: "Authentication required." });
     }
-
     if (!allowedRoles.includes(req.user.role)) {
-      return sendResponse({
-        res,
-        statusCode: 403,
-        error: `Forbidden: Access restricted to ${allowedRoles.join(", ")} roles. Your role is ${req.user.role}.`,
-      });
+      return sendResponse({ res, statusCode: 403, error: "You do not have permission to access this resource." });
     }
-
     next();
   };
 };

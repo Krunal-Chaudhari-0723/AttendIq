@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetch, setAuthToken, getAuthToken } from "@/lib/api";
+import { apiFetch, setAuthToken, SESSION_EXPIRED_EVENT } from "@/lib/api";
 import { UserRole } from "@/components/layout/Sidebar";
 
 export interface AuthUser {
@@ -35,7 +35,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const checkSession = async () => {
-    setIsLoading(true);
     try {
       const res = await apiFetch<{ user: AuthUser }>("/auth/me");
       if (res.success && res.data?.user) {
@@ -43,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null);
       }
-    } catch (err) {
+    } catch {
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -52,6 +51,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     checkSession();
+    // Any API call rejected with 401 (expired token, password changed, account disabled) ends the session
+    const onExpired = () => {
+      setAuthToken(null);
+      setUser(null);
+    };
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
   }, []);
 
   const login = async (email: string, password: string, requestedRole?: UserRole) => {

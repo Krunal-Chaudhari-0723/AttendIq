@@ -1,20 +1,7 @@
 import Link from "next/link";
-import {
-  Sparkles,
-  ShieldCheck,
-  MapPin,
-  ScanFace,
-  Activity,
-  AlertTriangle,
-  Lightbulb,
-  ArrowRight,
-  CheckCircle2,
-  Users,
-  GraduationCap,
-  ShieldAlert,
-} from "lucide-react";
+import { Sparkles, MapPin, ScanFace, Activity, AlertTriangle, Lightbulb, ArrowRight, CheckCircle2, Users, GraduationCap, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+
 
 export default function Home() {
   return (
@@ -118,7 +105,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800/80 py-8 px-6 text-center text-xs text-slate-400">
-        <p>AttendIQ — Perfect Master Development Prompt Prototype • Phase 1 Foundation</p>
+        <p>AttendIQ — Smart Attendance & Student Engagement System • Hackathon prototype</p>
       </footer>
     </div>
   );

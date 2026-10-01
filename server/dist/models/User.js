@@ -77,6 +77,9 @@ const UserSchema = new mongoose_1.Schema({
         type: Boolean,
         default: true,
     },
+    passwordChangedAt: {
+        type: Date,
+    },
 }, {
     timestamps: true,
 });
@@ -87,6 +90,9 @@ UserSchema.pre("save", async function (next) {
     }
     const salt = await bcryptjs_1.default.genSalt(10);
     this.password = await bcryptjs_1.default.hash(this.password, salt);
+    // Tokens issued before this moment become invalid (see authenticate middleware)
+    if (!this.isNew)
+        this.passwordChangedAt = new Date(Date.now() - 1000);
     next();
 });
 // Match user entered password to hashed password in database

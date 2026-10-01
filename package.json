@@ -8,9 +8,12 @@
     "start": "next start",
     "lint": "eslint",
     "dev:server": "npm --prefix server run dev",
-    "build:server": "npm --prefix server run build"
+    "build:server": "npm --prefix server run build",
+    "seed:server": "npm --prefix server run seed",
+    "seed:reset:server": "npm --prefix server run seed:reset"
   },
   "dependencies": {
+    "@vladmandic/face-api": "^1.7.15",
     "clsx": "^2.1.1",
     "lucide-react": "^1.48.0",
     "next": "16.3.7",
@@ -28,5 +31,8 @@
     "eslint-config-next": "16.3.7",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

@@ -1,0 +1,28 @@
+# Render Blueprint for the AttendIQ API (Express). The Next.js frontend deploys to Vercel.
+# Secrets marked sync: false must be entered in the Render dashboard.
+services:
+  - type: web
+    name: attendiq-api
+    runtime: node
+    rootDir: server
+    # Dev dependencies (TypeScript, @types) are needed to compile even with NODE_ENV=production
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: COOKIE_SAMESITE
+        value: none
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FACE_ENCRYPTION_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: SEED_DEMO_DATA
+        value: "false"
