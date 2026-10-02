@@ -22,7 +22,7 @@ import { EngagementResult } from "./engagementService";
  * Academic recommendations grounded ONLY in recorded data.
  *
  * 1. The server builds a numbered list of facts (F1..Fn) from the database.
- * 2. Claude (when configured) writes recommendations and must cite fact ids for each one;
+ * 2. An AI model (Claude or Gemini, when configured) writes recommendations and must cite fact ids for each one;
  *    items citing no valid fact are discarded and cited ids are resolved back to the
  *    server's own fact text — the model cannot invent supporting evidence.
  * 3. If AI is not configured, errors, refuses, or returns nothing usable, a deterministic
@@ -34,14 +34,25 @@ import { EngagementResult } from "./engagementService";
 export const RECOMMENDATION_ENGINE_VERSION = "recommendations-v1";
 const DAY = 24 * 60 * 60 * 1000;
 
+const hasAnthropicKey = Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+const hasGeminiKey = Boolean(process.env.GEMINI_API_KEY);
+
+// AI_PROVIDER picks the provider explicitly; otherwise whichever key is set is used (Anthropic first)
+const provider: "anthropic" | "gemini" =
+  process.env.AI_PROVIDER === "gemini" || process.env.AI_PROVIDER === "anthropic"
+    ? process.env.AI_PROVIDER
+    : hasAnthropicKey || !hasGeminiKey
+    ? "anthropic"
+    : "gemini";
+
 export const AI_CONFIG = {
-  model: process.env.AI_MODEL || "claude-opus-5-5",
+  provider,
+  model: process.env.AI_MODEL || (provider === "gemini" ? "gemini-2.5-flash" : "claude-opus-5-5"),
   enabled: process.env.AI_RECOMMENDATIONS_ENABLED !== "false",
   timeoutMs: Number(process.env.AI_TIMEOUT_MS) || 90_000,
 };
 
-export const isAiConfigured = () =>
-  AI_CONFIG.enabled && Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+export const isAiConfigured = () => AI_CONFIG.enabled && (provider === "gemini" ? hasGeminiKey : hasAnthropicKey);
 
 // ------------------------------------------------------------------
 // Facts
@@ -314,8 +325,10 @@ Rules:
 let client: Anthropic | null = null;
 const getClient = () => (client ??= new Anthropic({ timeout: AI_CONFIG.timeoutMs, maxRetries: 1 }));
 
-const generateWithAi = async (ctx: Context) => {
-  const factLines = ctx.facts.map((f) => `${f.id}: ${f.text}`).join("\n");
+const factPrompt = (ctx: Context) =>
+  `Facts about the student:\n${ctx.facts.map((f) => `${f.id}: ${f.text}`).join("\n")}\n\nWrite the recommendations.`;
+
+const generateWithClaude = async (ctx: Context) => {
   const response = await getClient().beta.messages.parse({
     model: AI_CONFIG.model,
     max_tokens: 16000,
@@ -324,12 +337,81 @@ const generateWithAi = async (ctx: Context) => {
     fallbacks: "default",
     output_config: { effort: "medium", format: betaZodOutputFormat(AiOutput) },
     system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: `Facts about the student:\n${factLines}\n\nWrite the recommendations.` }],
+    messages: [{ role: "user", content: factPrompt(ctx) }],
   });
   if (response.stop_reason === "refusal") throw new Error("AI declined the request");
   const parsed = response.parsed_output;
   if (!parsed) throw new Error(`AI returned no usable output (stop_reason: ${response.stop_reason})`);
+  return groundAiOutput(ctx, parsed, response.model);
+};
 
+// ------------------------------------------------------------------
+// Gemini (REST API, no SDK needed)
+// ------------------------------------------------------------------
+
+class GeminiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+  }
+}
+
+// Gemini accepts a JSON Schema subset; drop the keywords it does not need
+const stripSchema = (node: unknown): unknown => {
+  if (Array.isArray(node)) return node.map(stripSchema);
+  if (node && typeof node === "object") {
+    return Object.fromEntries(
+      Object.entries(node)
+        .filter(([k]) => k !== "$schema" && k !== "additionalProperties")
+        .map(([k, v]) => [k, stripSchema(v)])
+    );
+  }
+  return node;
+};
+const GEMINI_SCHEMA = stripSchema(z.toJSONSchema(AiOutput));
+
+const generateWithGemini = async (ctx: Context) => {
+  const base = (process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com").replace(/\/$/, "");
+  const url = `${base}/v1beta/models/${encodeURIComponent(AI_CONFIG.model)}:generateContent`;
+  const res = await fetch(url, {
+    method: "POST",
+    // Key goes in a header, never in the URL (URLs end up in logs)
+    headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY! },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      contents: [{ role: "user", parts: [{ text: factPrompt(ctx) }] }],
+      generationConfig: { responseMimeType: "application/json", responseJsonSchema: GEMINI_SCHEMA, maxOutputTokens: 8192 },
+    }),
+    signal: AbortSignal.timeout(AI_CONFIG.timeoutMs),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+    throw new GeminiError(res.status, body?.error?.message ?? res.statusText);
+  }
+  const data = (await res.json()) as {
+    promptFeedback?: { blockReason?: string };
+    candidates?: { finishReason?: string; content?: { parts?: { text?: string }[] } }[];
+    modelVersion?: string;
+  };
+  if (data.promptFeedback?.blockReason) throw new Error("AI declined the request");
+  const candidate = data.candidates?.[0];
+  if (candidate?.finishReason === "SAFETY") throw new Error("AI declined the request");
+  const text = candidate?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  let json: unknown;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new Error(`AI returned no usable output (finishReason: ${candidate?.finishReason ?? "none"})`);
+  }
+  const parsed = AiOutput.safeParse(json);
+  if (!parsed.success) throw new Error("AI output did not match the required format");
+  return groundAiOutput(ctx, parsed.data, data.modelVersion || AI_CONFIG.model);
+};
+
+// ------------------------------------------------------------------
+// Shared grounding: keep only items that cite real facts
+// ------------------------------------------------------------------
+
+const groundAiOutput = (ctx: Context, parsed: z.infer<typeof AiOutput>, model: string) => {
   const factText = new Map(ctx.facts.map((f) => [f.id, f.text]));
   const items: IRecommendationItem[] = [];
   for (const r of parsed.recommendations.slice(0, 6)) {
@@ -346,8 +428,10 @@ const generateWithAi = async (ctx: Context) => {
     });
   }
   if (items.length === 0) throw new Error("AI recommendations did not cite any provided facts");
-  return { summary: parsed.summary.trim().slice(0, 500), priority: parsed.priority, recommendations: items, model: response.model };
+  return { summary: parsed.summary.trim().slice(0, 500), priority: parsed.priority, recommendations: items, model };
 };
+
+const generateWithAi = (ctx: Context) => (AI_CONFIG.provider === "gemini" ? generateWithGemini(ctx) : generateWithClaude(ctx));
 
 // ------------------------------------------------------------------
 // Public API
@@ -370,6 +454,10 @@ export const generateRecommendation = async (
       fallbackReason =
         error instanceof Anthropic.APIError
           ? `AI service error (${error.status ?? "network"})`
+          : error instanceof GeminiError
+          ? `AI service error (${error.status}${error.status === 404 ? ": model not found, check AI_MODEL" : error.status === 400 || error.status === 403 ? ": check GEMINI_API_KEY" : ""})`
+          : error instanceof Error && error.name === "TimeoutError"
+          ? "AI service timed out"
           : error instanceof Error
           ? error.message.slice(0, 160)
           : "AI generation failed";

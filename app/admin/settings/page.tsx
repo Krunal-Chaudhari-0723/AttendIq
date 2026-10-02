@@ -166,7 +166,7 @@ export default function AdminSettingsPage() {
                 <CardContent>
                   <Row label="Status" value={data.ai.configured ? <Badge variant="success" size="sm">Enabled</Badge> : <Badge variant="neutral" size="sm">Not configured — rule-based only</Badge>} />
                   {data.ai.model && <Row label="Model" value={data.ai.model} />}
-                  <p className="text-[11px] text-slate-400 pt-2">Set ANTHROPIC_API_KEY on the server to enable AI generation. Without it the rule engine is used and labelled as such.</p>
+                  <p className="text-[11px] text-slate-400 pt-2">Set ANTHROPIC_API_KEY or GEMINI_API_KEY on the server to enable AI generation. Without it the rule engine is used and labelled as such.</p>
                 </CardContent>
               </Card>
 

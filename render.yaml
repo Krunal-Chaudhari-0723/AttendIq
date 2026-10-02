@@ -4,6 +4,7 @@ services:
   - type: web
     name: attendiq-api
     runtime: node
+    plan: free
     rootDir: server
     # Dev dependencies (TypeScript, @types) are needed to compile even with NODE_ENV=production
     buildCommand: npm ci --include=dev && npm run build
@@ -24,5 +25,10 @@ services:
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: AI_PROVIDER
+        sync: false
+      # "true" loads the demo accounts and six weeks of demo history into an empty database
       - key: SEED_DEMO_DATA
-        value: "false"
+        sync: false

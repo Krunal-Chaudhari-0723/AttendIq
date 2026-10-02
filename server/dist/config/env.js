@@ -21,6 +21,10 @@ const jwtSecret = required("JWT_SECRET", "attendiq-dev-only-secret-change-me");
 if (isProduction && jwtSecret.length < 32) {
     throw new Error("JWT_SECRET must be at least 32 characters in production");
 }
+// Face signatures are encrypted with this key; fail at startup rather than at the first enrollment
+if (isProduction && !/^[0-9a-fA-F]{64}$/.test(process.env.FACE_ENCRYPTION_KEY || "")) {
+    throw new Error("FACE_ENCRYPTION_KEY must be 64 hex characters in production");
+}
 exports.config = {
     port: parseInt(process.env.PORT || "5000", 10),
     nodeEnv,

@@ -20,6 +20,13 @@ import { Input } from "@/components/ui/input";
 import { UserRole } from "@/components/layout/Sidebar";
 import { useAuth } from "@/lib/auth/auth-context";
 
+// Demo accounts are shown for hackathon demos; hide them in real deployments
+// (NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS=false). Defaults to shown in development only.
+const SHOW_DEMO_CREDENTIALS =
+  process.env.NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS !== undefined
+    ? process.env.NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS === "true"
+    : process.env.NODE_ENV !== "production";
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, user, isAuthenticated, isLoading: authLoading, error: authError, clearError } = useAuth();
@@ -120,6 +127,7 @@ export default function LoginPage() {
             Secure multi-role authentication backed by Express, Mongoose, bcrypt password hashing, HTTP-Only cookies, and strict Role-Based Access Control.
           </p>
 
+          {SHOW_DEMO_CREDENTIALS && (
           <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
             <p className="text-xs font-semibold text-indigo-300 flex items-center gap-1.5">
               <KeyRound className="w-4 h-4 text-indigo-400" /> Demo Credentials Ready
@@ -130,6 +138,7 @@ export default function LoginPage() {
               <p><span className="text-slate-300 font-bold">STUDENT:</span> anand.student@attendiq.edu / Student@123456</p>
             </div>
           </div>
+          )}
         </div>
 
         <div className="relative z-10 text-xs text-slate-400 flex items-center justify-between border-t border-slate-800/80 pt-6">

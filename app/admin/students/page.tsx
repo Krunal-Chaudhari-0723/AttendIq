@@ -431,12 +431,12 @@ export default function AdminStudentsPage() {
               <label className="text-xs font-semibold text-slate-700">Portal Password (Optional)</label>
               <Input
                 type="password"
-                placeholder="Default: Student@123456"
+                placeholder="8+ characters with letters and numbers"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="text-xs"
               />
-              <p className="text-[10px] text-slate-400">If set, creates an active login user account for student.</p>
+              <p className="text-[10px] text-slate-400">If set, a login account is created. Leave empty to add the student to the roster without portal access.</p>
             </div>
 
             <div className="pt-2 flex justify-end gap-2">

@@ -11,7 +11,7 @@ Live face ─▶ Campus location ─▶ Trusted attendance ─▶ Engagement sco
 | Frontend | Next.js 16 (App Router, client components), React 19, Tailwind CSS 4, Recharts, face-api (`@vladmandic/face-api`) |
 | Backend | Node.js, Express 4, TypeScript, Mongoose 8 |
 | Database | MongoDB (local or Atlas) |
-| AI | Anthropic Claude API (optional) with a deterministic rule-based fallback |
+| AI | Anthropic Claude or Google Gemini (optional) with a deterministic rule-based fallback |
 
 ---
 
@@ -98,7 +98,7 @@ The browser only measures; **every decision is made on the server**. Client-supp
 A transparent rule set (attendance below 75 % / 60 %, attendance decline over 14 days, quiz average, assignment completion, engagement level and decline, participation). Each rule adds points and a reason; **HIGH ≥ 6, MEDIUM ≥ 3**. It is an early-support indicator, not a prediction.
 
 ### Recommendations
-The server builds numbered facts from the database (no names, IDs, face or location data). With `ANTHROPIC_API_KEY` set, Claude writes recommendations that must cite those facts; uncited items are discarded and cited facts are shown verbatim. Without a key, on refusal, error or invalid output, the deterministic rule engine is used and the result is labelled **Rule-based**.
+The server builds numbered facts from the database (no names, IDs, face or location data). With `ANTHROPIC_API_KEY` (Claude) or `GEMINI_API_KEY` (Gemini) set in `server/.env`, the AI writes recommendations that must cite those facts; uncited items are discarded and cited facts are shown verbatim. Without a key, on refusal, error or invalid output, the deterministic rule engine is used and the result is labelled **Rule-based**.
 
 ---
 
