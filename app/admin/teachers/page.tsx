@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { EmptyState } from "@/components/ui/states";
 import { apiFetch } from "@/lib/api";
-import { GraduationCap, Search, Plus, RefreshCw, CheckCircle, XCircle } from "lucide-react";
+import { GraduationCap, Search, Plus, RefreshCw, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 
 interface TeacherItem {
   _id: string;
@@ -117,62 +118,67 @@ export default function AdminTeachersPage() {
       >
         <div className="space-y-6">
           {actionSuccess && (
-            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-between animate-fadeIn">
-              <span>{actionSuccess}</span>
-              <button onClick={() => setActionSuccess(null)} className="text-emerald-600 hover:text-emerald-900">
+            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between gap-3 animate-fadeIn">
+              <span className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                {actionSuccess}
+              </span>
+              <button onClick={() => setActionSuccess(null)} className="w-6 h-6 inline-flex items-center justify-center rounded-md text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100 shrink-0">
                 ✕
               </button>
             </div>
           )}
 
-          {/* Action Header */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div className="relative flex-1 max-w-sm">
-              <Input
-                icon={<Search className="w-4 h-4 text-slate-400" />}
-                placeholder="Search teachers by name, ID, email..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="bg-white text-xs h-9"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setIsLoading(true);
-                  fetchTeachers();
-                }}
-                className="text-xs gap-1.5"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setIsAddModalOpen(true)}
-                className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 shadow-sm"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Teacher
-              </Button>
-            </div>
-          </div>
-
-          {/* Teachers Table */}
+          {/* Faculty register */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <div>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 space-y-0">
+              <div className="min-w-0">
+                <p className="eyebrow text-brand-600 mb-0.5">Faculty register</p>
                 <CardTitle className="flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-indigo-600" />
+                  <GraduationCap className="w-4 h-4 text-brand-600" />
                   <span>Faculty Directory</span>
                 </CardTitle>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-500 mt-1">
                   Showing {teachers.length} faculty members registered in system
                 </p>
               </div>
+
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsLoading(true);
+                    fetchTeachers();
+                  }}
+                  className="text-xs gap-1.5"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="text-xs gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Teacher
+                </Button>
+              </div>
             </CardHeader>
+
+            {/* Search toolbar */}
+            <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center flex-wrap gap-2 sm:gap-3">
+              <div className="w-full sm:flex-1 sm:min-w-56 sm:max-w-sm">
+                <Input
+                  icon={<Search className="w-4 h-4 text-slate-400" />}
+                  placeholder="Search teachers by name, ID, email..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="bg-white text-sm"
+                />
+              </div>
+            </div>
+
             <CardContent>
               <Table>
                 <TableHeader>
@@ -189,38 +195,45 @@ export default function AdminTeachersPage() {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-xs text-slate-400">
-                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-600" />
+                      <TableCell colSpan={7} className="text-center py-8 text-xs text-slate-500">
+                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" />
                         Loading faculty directory...
                       </TableCell>
                     </TableRow>
                   ) : teachers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-xs text-slate-500">
-                        No faculty found matching the query.
+                      <TableCell colSpan={7} className="p-0">
+                        <EmptyState icon={GraduationCap} title="No faculty found matching the query." />
                       </TableCell>
                     </TableRow>
                   ) : (
                     teachers.map((teacher) => (
                       <TableRow key={teacher._id}>
-                        <TableCell className="font-mono text-xs font-bold text-slate-700">
-                          {teacher.teacherId}
+                        <TableCell>
+                          <Badge variant="brand" size="sm" className="font-mono">
+                            {teacher.teacherId}
+                          </Badge>
                         </TableCell>
                         <TableCell>
-                          <div>
-                            <p className="font-semibold text-slate-900 text-xs">{teacher.name}</p>
-                            <p className="text-[11px] text-slate-400">{teacher.email}</p>
+                          <div className="flex items-center gap-2.5 min-w-44">
+                            <span className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 font-semibold text-xs flex items-center justify-center shrink-0" aria-hidden="true">
+                              {teacher.name.replace(/^(Prof\.|Dr\.|Mr\.|Ms\.|Mrs\.)\s*/i, "").charAt(0).toUpperCase()}
+                            </span>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-brand-950 text-xs">{teacher.name}</p>
+                              <p className="text-[11px] text-slate-500">{teacher.email}</p>
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="min-w-44">
                           <p className="text-xs font-medium text-slate-800">{teacher.designation}</p>
-                          <p className="text-[11px] text-slate-400">{teacher.department}</p>
+                          <p className="text-[11px] text-slate-500">{teacher.department}</p>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {teacher.assignedClasses && teacher.assignedClasses.length > 0 ? (
                               teacher.assignedClasses.map((c) => (
-                                <Badge key={c._id} variant="purple" size="sm">
+                                <Badge key={c._id} variant="brand" size="sm">
                                   {c.code || c.name}
                                 </Badge>
                               ))
@@ -229,7 +242,7 @@ export default function AdminTeachersPage() {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="min-w-40">
                           <div className="flex flex-wrap gap-1">
                             {teacher.subjectsTaught && teacher.subjectsTaught.length > 0 ? (
                               teacher.subjectsTaught.map((s) => (
@@ -253,11 +266,11 @@ export default function AdminTeachersPage() {
                         <TableCell className="text-right">
                           <button
                             onClick={() => handleToggleStatus(teacher._id, teacher.status)}
-                            className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-slate-100 rounded-md transition-colors"
+                            className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-rose-700 hover:border-rose-200 hover:bg-rose-50 transition-colors"
                             title={teacher.status === "ACTIVE" ? "Deactivate" : "Activate"}
                           >
                             {teacher.status === "ACTIVE" ? (
-                              <XCircle className="w-4 h-4 text-slate-400 hover:text-rose-600" />
+                              <XCircle className="w-4 h-4" />
                             ) : (
                               <CheckCircle className="w-4 h-4 text-emerald-600" />
                             )}
@@ -280,88 +293,95 @@ export default function AdminTeachersPage() {
           subtitle="Register teacher credentials and assign default department"
         >
           {formError && (
-            <div className="p-3 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+            <div className="p-3 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2 animate-fadeIn">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-px" />
               {formError}
             </div>
           )}
-          <form onSubmit={handleCreateTeacher} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Teacher ID *</label>
+          <form onSubmit={handleCreateTeacher} className="space-y-5">
+            <div className="space-y-3">
+              <p className="eyebrow text-brand-600">Faculty details</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Teacher ID *</label>
+                  <Input
+                    required
+                    placeholder="e.g. T203"
+                    value={formData.teacherId}
+                    onChange={(e) => setFormData({ ...formData, teacherId: e.target.value.toUpperCase() })}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Phone</label>
+                  <Input
+                    placeholder="+91 98765 00000"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700">Full Name *</label>
                 <Input
                   required
-                  placeholder="e.g. T203"
-                  value={formData.teacherId}
-                  onChange={(e) => setFormData({ ...formData, teacherId: e.target.value.toUpperCase() })}
-                  className="text-xs"
+                  placeholder="Prof. Name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="text-sm"
                 />
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Phone</label>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700">Email Address *</label>
                 <Input
-                  placeholder="+91 98765 00000"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="text-xs"
+                  type="email"
+                  required
+                  placeholder="teacher@attendiq.edu"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="text-sm"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Full Name *</label>
-              <Input
-                required
-                placeholder="Prof. Name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="text-xs"
-              />
-            </div>
+            <div className="space-y-3 border-t border-slate-100 pt-5">
+              <p className="eyebrow text-brand-600">Appointment &amp; portal access</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Designation</label>
+                  <Input
+                    value={formData.designation}
+                    onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Department</label>
+                  <Input
+                    value={formData.department}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    className="text-sm"
+                  />
+                </div>
+              </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Email Address *</label>
-              <Input
-                type="email"
-                required
-                placeholder="teacher@attendiq.edu"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="text-xs"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Designation</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700">Password</label>
                 <Input
-                  value={formData.designation}
-                  onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                  className="text-xs"
+                  type="password"
+                  placeholder="Default: Teacher@123456"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="text-sm"
                 />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Department</label>
-                <Input
-                  value={formData.department}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="text-xs"
-                />
+                <p className="text-[11px] text-slate-500">Creates an active teacher account for portal login.</p>
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Password</label>
-              <Input
-                type="password"
-                placeholder="Default: Teacher@123456"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="text-xs"
-              />
-              <p className="text-[10px] text-slate-400">Creates an active teacher account for portal login.</p>
-            </div>
-
-            <div className="pt-2 flex justify-end gap-2">
+            <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -376,7 +396,7 @@ export default function AdminTeachersPage() {
                 variant="primary"
                 size="sm"
                 disabled={formSubmitting}
-                className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="text-xs"
               >
                 {formSubmitting ? "Saving..." : "Save Teacher"}
               </Button>

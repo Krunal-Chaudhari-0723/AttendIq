@@ -13,32 +13,29 @@ export interface StatsCardProps {
   className?: string;
 }
 
+/** KPI tile: label, figure, optional change chip and context line. */
 export function StatsCard({
   title,
   value,
   change,
   changeType = "neutral",
   icon,
-  iconBg = "bg-indigo-50 text-indigo-600",
+  iconBg = "bg-brand-50 text-brand-700",
   description,
   className,
 }: StatsCardProps) {
   return (
-    <Card className={cn("overflow-hidden", className)}>
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-              {title}
-            </p>
-            <div className="flex items-baseline gap-2">
-              <h4 className="text-2xl font-bold tracking-tight text-slate-900">
-                {value}
-              </h4>
+    <Card className={cn("relative overflow-hidden", className)}>
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-1.5">
+            <p className="eyebrow truncate">{title}</p>
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <h4 className="text-2xl font-semibold tracking-tight text-brand-950 tabular-nums">{value}</h4>
               {change && (
                 <span
                   className={cn(
-                    "text-xs font-semibold px-1.5 py-0.5 rounded",
+                    "text-[11px] font-semibold px-1.5 py-0.5 rounded",
                     changeType === "positive" && "bg-emerald-50 text-emerald-700",
                     changeType === "negative" && "bg-rose-50 text-rose-700",
                     changeType === "neutral" && "bg-slate-100 text-slate-600"
@@ -48,12 +45,10 @@ export function StatsCard({
                 </span>
               )}
             </div>
-            {description && (
-              <p className="text-xs text-slate-400 mt-1">{description}</p>
-            )}
+            {description && <p className="text-xs text-slate-500 leading-snug">{description}</p>}
           </div>
           {icon && (
-            <div className={cn("p-3 rounded-xl flex items-center justify-center shrink-0", iconBg)}>
+            <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
               {icon}
             </div>
           )}

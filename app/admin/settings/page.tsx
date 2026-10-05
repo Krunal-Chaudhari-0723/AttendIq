@@ -22,9 +22,9 @@ interface AdminSettings {
 }
 
 const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="flex justify-between gap-4 py-1.5 text-xs border-b border-slate-50 last:border-0">
+  <div className="flex justify-between items-center gap-4 py-2 text-xs border-b border-slate-100 last:border-0">
     <span className="text-slate-500">{label}</span>
-    <span className="font-semibold text-slate-800 text-right">{value}</span>
+    <span className="font-semibold text-brand-950 text-right break-words min-w-0">{value}</span>
   </div>
 );
 
@@ -55,41 +55,51 @@ export default function AdminSettingsPage() {
   return (
     <ProtectedRoute allowedRoles={["ADMIN"]}>
       <AppShell title="Settings" subtitle="Your admin profile, attendance defaults and the system's effective configuration" defaultRole="ADMIN">
-        <div className="space-y-8">
+        <div className="space-y-6">
           <ProfileView />
 
           {error && (
             <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" /> {error}
+              <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
             </div>
           )}
 
           {data && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section className="space-y-3">
+            <p className="eyebrow text-brand-600">System configuration</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-indigo-600" /> Attendance defaults
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-brand-600" /> Attendance defaults
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={save} className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <label className="space-y-1 text-xs font-semibold text-slate-700">
+                  <form onSubmit={save} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <label className="block space-y-1.5 text-xs font-semibold text-slate-700">
                         Default session length (min)
-                        <Input type="number" required min={data.attendance.minSessionMinutes} max={data.attendance.maxSessionMinutes} value={form.defaultSessionMinutes} onChange={(e) => setForm({ ...form, defaultSessionMinutes: Number(e.target.value) })} className="text-xs" />
+                        <Input type="number" required min={data.attendance.minSessionMinutes} max={data.attendance.maxSessionMinutes} value={form.defaultSessionMinutes} onChange={(e) => setForm({ ...form, defaultSessionMinutes: Number(e.target.value) })} className="text-sm font-normal" />
                       </label>
-                      <label className="space-y-1 text-xs font-semibold text-slate-700">
+                      <label className="block space-y-1.5 text-xs font-semibold text-slate-700">
                         Mark late after (min)
-                        <Input type="number" required min={0} max={form.defaultSessionMinutes} value={form.defaultLateAfterMinutes} onChange={(e) => setForm({ ...form, defaultLateAfterMinutes: Number(e.target.value) })} className="text-xs" />
+                        <Input type="number" required min={0} max={form.defaultSessionMinutes} value={form.defaultLateAfterMinutes} onChange={(e) => setForm({ ...form, defaultLateAfterMinutes: Number(e.target.value) })} className="text-sm font-normal" />
                       </label>
                     </div>
-                    {msg && <p className={`text-xs ${msg.ok ? "text-emerald-700" : "text-rose-700"}`}>{msg.text}</p>}
+                    {msg && (
+                      <p
+                        className={`p-3 rounded-lg border text-xs font-medium animate-fadeIn ${
+                          msg.ok ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-rose-50 border-rose-200 text-rose-800"
+                        }`}
+                      >
+                        {msg.text}
+                      </p>
+                    )}
                     <Button type="submit" size="sm" disabled={saving} className="text-xs">
                       {saving ? "Saving…" : "Save defaults"}
                     </Button>
                   </form>
-                  <div className="mt-4 pt-3 border-t border-slate-100">
+                  <div className="mt-5 pt-3 border-t border-slate-100">
                     <Row label="Verification attempt expires after" value={`${data.attendance.attemptTtlSeconds / 60} min`} />
                     <Row label="Verification audit log kept for" value={`${data.attendance.auditRetentionDays} days`} />
                   </div>
@@ -97,9 +107,9 @@ export default function AdminSettingsPage() {
               </Card>
 
               <Card>
-                <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                  <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-indigo-600" /> Campus location
+                <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-brand-600" /> Campus location
                   </CardTitle>
                   <Link href="/admin/campus-settings">
                     <Button variant="outline" size="sm" className="text-xs gap-1">
@@ -118,15 +128,15 @@ export default function AdminSettingsPage() {
                       <Row label="Attendance modes" value={data.campus.allowedModes.join(", ")} />
                     </>
                   ) : (
-                    <p className="text-xs text-amber-700">Campus not configured yet.</p>
+                    <p className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs">Campus not configured yet.</p>
                   )}
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <ScanFace className="w-4 h-4 text-indigo-600" /> Identity verification
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ScanFace className="w-4 h-4 text-brand-600" /> Identity verification
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -134,14 +144,14 @@ export default function AdminSettingsPage() {
                   <Row label="Match threshold (distance ≤)" value={data.verification.matchThreshold} />
                   <Row label="Liveness: head-turn threshold" value={data.verification.livenessTurnThreshold} />
                   <Row label="Liveness: facing-camera tolerance" value={data.verification.livenessCenterThreshold} />
-                  <p className="text-[11px] text-slate-400 pt-2">Security thresholds are set on the server (environment variables), not from the browser.</p>
+                  <p className="text-[11px] text-slate-500 pt-3 leading-snug">Security thresholds are set on the server (environment variables), not from the browser.</p>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-indigo-600" /> Analytics
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-brand-600" /> Analytics
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -158,22 +168,22 @@ export default function AdminSettingsPage() {
               </Card>
 
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-indigo-600" /> AI recommendations
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-accent-600" /> AI recommendations
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Row label="Status" value={data.ai.configured ? <Badge variant="success" size="sm">Enabled</Badge> : <Badge variant="neutral" size="sm">Not configured — rule-based only</Badge>} />
                   {data.ai.model && <Row label="Model" value={data.ai.model} />}
-                  <p className="text-[11px] text-slate-400 pt-2">Set ANTHROPIC_API_KEY or GEMINI_API_KEY on the server to enable AI generation. Without it the rule engine is used and labelled as such.</p>
+                  <p className="text-[11px] text-slate-500 pt-3 leading-snug">Set ANTHROPIC_API_KEY or GEMINI_API_KEY on the server to enable AI generation. Without it the rule engine is used and labelled as such.</p>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <Database className="w-4 h-4 text-indigo-600" /> System
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="w-4 h-4 text-brand-600" /> System
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -183,6 +193,7 @@ export default function AdminSettingsPage() {
                 </CardContent>
               </Card>
             </div>
+            </section>
           )}
         </div>
       </AppShell>

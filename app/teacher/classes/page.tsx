@@ -53,20 +53,23 @@ export default function TeacherClassesPage() {
         defaultRole="TEACHER"
       >
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-800">My Teaching Cohorts</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <p className="eyebrow">Teaching workload</p>
+              <h3 className="text-sm font-semibold text-brand-950 mt-0.5">My Teaching Cohorts</h3>
+            </div>
             <Button variant="outline" size="sm" onClick={() => {
                   setIsLoading(true);
                   fetchClasses();
-                }} className="text-xs gap-1.5">
+                }} className="self-start sm:self-auto">
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
             </Button>
           </div>
 
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-indigo-600" />
+                <BookOpen className="w-4 h-4 text-brand-600" />
                 <span>Class Roster</span>
               </CardTitle>
             </CardHeader>
@@ -86,36 +89,36 @@ export default function TeacherClassesPage() {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-xs text-slate-400">
-                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-600" />
+                      <TableCell colSpan={7} className="text-left sm:text-center py-10 text-xs text-slate-500">
+                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" />
                         Loading assigned classes...
                       </TableCell>
                     </TableRow>
                   ) : classes.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-xs text-slate-500">
+                      <TableCell colSpan={7} className="text-left sm:text-center py-10 text-xs text-slate-500">
                         No classes assigned yet.
                       </TableCell>
                     </TableRow>
                   ) : (
                     classes.map((cls) => (
                       <TableRow key={cls._id}>
-                        <TableCell className="font-mono text-xs font-bold text-slate-700">{cls.code}</TableCell>
-                        <TableCell className="font-semibold text-xs text-slate-900">{cls.name}</TableCell>
+                        <TableCell className="text-xs font-semibold text-brand-700 tabular-nums whitespace-nowrap">{cls.code}</TableCell>
+                        <TableCell className="font-semibold text-sm text-brand-950 whitespace-nowrap">{cls.name}</TableCell>
                         <TableCell>
-                          <Badge variant="purple" size="sm">Div {cls.division}</Badge>
+                          <Badge variant="brand" size="sm">Div {cls.division}</Badge>
                         </TableCell>
-                        <TableCell className="text-xs">Semester {cls.semester}</TableCell>
-                        <TableCell className="text-xs font-mono text-slate-600">{cls.academicYear}</TableCell>
+                        <TableCell className="text-xs text-slate-600 whitespace-nowrap">Semester {cls.semester}</TableCell>
+                        <TableCell className="text-xs tabular-nums text-slate-600">{cls.academicYear}</TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1.5 text-xs text-slate-700 font-semibold">
-                            <Users className="w-3.5 h-3.5 text-slate-400" />
+                          <div className="flex items-center gap-1.5 text-xs text-slate-700 font-semibold whitespace-nowrap">
+                            <Users className="w-3.5 h-3.5 text-brand-500" />
                             <span>{cls.studentCount ?? 0} Students</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <Link href="/teacher/students">
-                            <Button size="sm" variant="outline" className="text-xs">
+                            <Button size="sm" variant="outline" className="whitespace-nowrap">
                               View Roster
                             </Button>
                           </Link>

@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { EmptyState } from "@/components/ui/states";
 import { apiFetch } from "@/lib/api";
-import { Plus, RefreshCw, Award } from "lucide-react";
+import { Plus, RefreshCw, Award, CheckCircle, AlertTriangle } from "lucide-react";
 
 interface SubjectItem {
   _id: string;
@@ -113,40 +114,38 @@ export default function AdminSubjectsPage() {
       >
         <div className="space-y-6">
           {actionSuccess && (
-            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold animate-fadeIn">
+            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2 animate-fadeIn">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
               {actionSuccess}
             </div>
           )}
 
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-slate-800">Academic Subjects</h3>
-              <p className="text-xs text-slate-500">Curriculum courses and allocated teaching staff</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => {
-                  setIsLoading(true);
-                  fetchData();
-                }} className="text-xs gap-1.5">
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setIsAddModalOpen(true)}
-                className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 shadow-sm"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Subject
-              </Button>
-            </div>
-          </div>
-
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2">
-                <Award className="w-4 h-4 text-indigo-600" />
-                <span>Curriculum Directory</span>
-              </CardTitle>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 space-y-0">
+              <div className="min-w-0">
+                <h3 className="eyebrow text-brand-600 mb-0.5">Academic Subjects</h3>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-brand-600" />
+                  <span>Curriculum Directory</span>
+                </CardTitle>
+                <p className="text-xs text-slate-500 mt-1">Curriculum courses and allocated teaching staff</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <Button variant="outline" size="sm" onClick={() => {
+                    setIsLoading(true);
+                    fetchData();
+                  }} className="text-xs gap-1.5">
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="text-xs gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Subject
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -163,38 +162,40 @@ export default function AdminSubjectsPage() {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">
-                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-600" />
+                      <TableCell colSpan={6} className="text-center py-8 text-xs text-slate-500">
+                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" />
                         Loading curriculum...
                       </TableCell>
                     </TableRow>
                   ) : subjects.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-xs text-slate-500">
-                        No subjects created yet.
+                      <TableCell colSpan={6} className="p-0">
+                        <EmptyState icon={Award} title="No subjects created yet." />
                       </TableCell>
                     </TableRow>
                   ) : (
                     subjects.map((subj) => (
                       <TableRow key={subj._id}>
-                        <TableCell className="font-mono text-xs font-bold text-slate-700">
-                          {subj.code}
-                        </TableCell>
-                        <TableCell className="font-semibold text-xs text-slate-900">{subj.name}</TableCell>
                         <TableCell>
-                          <Badge variant="purple" size="sm">
+                          <Badge variant="brand" size="sm" className="font-mono">
+                            {subj.code}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-semibold text-xs text-brand-950 min-w-44">{subj.name}</TableCell>
+                        <TableCell>
+                          <Badge variant="neutral" size="sm">
                             {subj.classId?.name || "General"}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-xs">
+                        <TableCell className="text-xs whitespace-nowrap">
                           {subj.teacherId?.name ? (
                             <span className="font-medium text-slate-800">{subj.teacherId.name}</span>
                           ) : (
                             <span className="text-slate-400 italic">Unassigned</span>
                           )}
                         </TableCell>
-                        <TableCell className="text-xs font-semibold">{subj.credits} Credits</TableCell>
-                        <TableCell className="text-xs text-slate-600">{subj.totalHours} Hours</TableCell>
+                        <TableCell className="text-xs font-semibold text-brand-950 tabular-nums whitespace-nowrap">{subj.credits} Credits</TableCell>
+                        <TableCell className="text-xs text-slate-600 tabular-nums whitespace-nowrap">{subj.totalHours} Hours</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -212,97 +213,104 @@ export default function AdminSubjectsPage() {
           subtitle="Define subject code, assign class and select faculty instructor"
         >
           {formError && (
-            <div className="p-3 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+            <div className="p-3 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2 animate-fadeIn">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-px" />
               {formError}
             </div>
           )}
-          <form onSubmit={handleCreateSubject} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Subject Name *</label>
-                <Input
-                  required
-                  placeholder="e.g. Cloud Computing"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="text-xs"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Subject Code *</label>
-                <Input
-                  required
-                  placeholder="e.g. CS601"
-                  value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                  className="text-xs"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Assign to Class *</label>
-                <select
-                  required
-                  value={formData.classId}
-                  onChange={(e) => setFormData({ ...formData, classId: e.target.value })}
-                  className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="">Select Class</option>
-                  {classes.map((c) => (
-                    <option key={c._id} value={c._id}>
-                      {c.name} ({c.code})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Course Faculty</label>
-                <select
-                  value={formData.teacherId}
-                  onChange={(e) => setFormData({ ...formData, teacherId: e.target.value })}
-                  className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="">Select Teacher (Optional)</option>
-                  {teachers.map((t) => (
-                    <option key={t._id} value={t._id}>
-                      {t.name} ({t.teacherId})
-                    </option>
-                  ))}
-                </select>
+          <form onSubmit={handleCreateSubject} className="space-y-5">
+            <div className="space-y-3">
+              <p className="eyebrow text-brand-600">Course details</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Subject Name *</label>
+                  <Input
+                    required
+                    placeholder="e.g. Cloud Computing"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Subject Code *</label>
+                  <Input
+                    required
+                    placeholder="e.g. CS601"
+                    value={formData.code}
+                    onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                    className="text-sm"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Credits</label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={formData.credits}
-                  onChange={(e) => setFormData({ ...formData, credits: Number(e.target.value) })}
-                  className="text-xs"
-                />
+            <div className="space-y-3 border-t border-slate-100 pt-5">
+              <p className="eyebrow text-brand-600">Allocation</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Assign to Class *</label>
+                  <select
+                    required
+                    value={formData.classId}
+                    onChange={(e) => setFormData({ ...formData, classId: e.target.value })}
+                    className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15"
+                  >
+                    <option value="">Select Class</option>
+                    {classes.map((c) => (
+                      <option key={c._id} value={c._id}>
+                        {c.name} ({c.code})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Course Faculty</label>
+                  <select
+                    value={formData.teacherId}
+                    onChange={(e) => setFormData({ ...formData, teacherId: e.target.value })}
+                    className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15"
+                  >
+                    <option value="">Select Teacher (Optional)</option>
+                    {teachers.map((t) => (
+                      <option key={t._id} value={t._id}>
+                        {t.name} ({t.teacherId})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Total Hours</label>
-                <Input
-                  type="number"
-                  value={formData.totalHours}
-                  onChange={(e) => setFormData({ ...formData, totalHours: Number(e.target.value) })}
-                  className="text-xs"
-                />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Credits</label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={formData.credits}
+                    onChange={(e) => setFormData({ ...formData, credits: Number(e.target.value) })}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Total Hours</label>
+                  <Input
+                    type="number"
+                    value={formData.totalHours}
+                    onChange={(e) => setFormData({ ...formData, totalHours: Number(e.target.value) })}
+                    className="text-sm"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="pt-2 flex justify-end gap-2">
+            <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => setIsAddModalOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" variant="primary" size="sm" disabled={formSubmitting} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              <Button type="submit" variant="primary" size="sm" disabled={formSubmitting}>
                 {formSubmitting ? "Saving..." : "Save Subject"}
               </Button>
             </div>

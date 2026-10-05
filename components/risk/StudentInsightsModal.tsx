@@ -68,25 +68,25 @@ export function StudentInsightsModal({
       maxWidth="xl"
     >
       {error && (
-        <p className="text-xs text-rose-700 flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4" /> {error}
+        <p className="text-xs p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
         </p>
       )}
       {!data && !error && (
         <p className="text-xs text-slate-500 flex items-center gap-2 py-8 justify-center">
-          <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" /> Loading insights…
+          <RefreshCw className="w-4 h-4 animate-spin text-brand-600" /> Loading insights…
         </p>
       )}
       {data && (
         <div className="space-y-5">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs text-slate-500">Risk indicator</span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-slate-200 bg-slate-50/70 px-4 py-3">
+            <span className="eyebrow">Risk indicator</span>
             <RiskBadge level={data.risk.level} />
-            <span className="text-xs text-slate-500 font-mono">{data.risk.points} pts</span>
+            <span className="text-xs text-slate-500 tabular-nums">{data.risk.points} pts</span>
             <RiskDirection direction={data.risk.direction} />
-            <span className="mx-2 h-4 w-px bg-slate-200" />
-            <span className="text-xs text-slate-500">Engagement</span>
-            <span className="text-sm font-bold text-slate-900">{data.engagement.overallScore ?? "—"}/100</span>
+            <span className="mx-1 h-4 w-px bg-slate-300" />
+            <span className="eyebrow">Engagement</span>
+            <span className="text-sm font-semibold text-brand-950 tabular-nums">{data.engagement.overallScore ?? "—"}/100</span>
             <TrendBadge
               trend={data.engagement.trend.trend}
               delta={data.engagement.overallScore !== null && data.engagement.trend.previousScore !== null ? data.engagement.overallScore - data.engagement.trend.previousScore : null}
@@ -94,23 +94,23 @@ export function StudentInsightsModal({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-rose-100 bg-rose-50/40 p-4">
-              <p className="text-xs font-bold text-slate-800 mb-2">Why this risk level</p>
+            <div className="rounded-lg border border-slate-200 bg-white p-4 border-l-[3px] border-l-brand-600">
+              <p className="text-sm font-semibold text-brand-950 mb-2">Why this risk level</p>
               {data.risk.factors.length === 0 ? (
                 <p className="text-xs text-slate-500">No risk rules triggered.</p>
               ) : (
                 <ul className="space-y-1.5">
                   {data.risk.factors.map((f) => (
                     <li key={f.code} className="text-xs text-slate-700 flex gap-2">
-                      <span className="font-mono text-[10px] text-rose-700 bg-white border border-rose-200 rounded px-1 h-fit">+{f.points}</span>
+                      <span className="tabular-nums text-[10.5px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 rounded px-1.5 h-fit shrink-0">+{f.points}</span>
                       {f.message}
                     </li>
                   ))}
                 </ul>
               )}
             </div>
-            <div className="rounded-xl border border-emerald-100 bg-emerald-50/40 p-4">
-              <p className="text-xs font-bold text-slate-800 mb-2">Strengths</p>
+            <div className="rounded-lg border border-slate-200 bg-white p-4 border-l-[3px] border-l-emerald-500">
+              <p className="text-sm font-semibold text-brand-950 mb-2">Strengths</p>
               {data.risk.strengths.length === 0 ? (
                 <p className="text-xs text-slate-500">None recorded in this period.</p>
               ) : (
@@ -127,11 +127,11 @@ export function StudentInsightsModal({
 
           <ComponentBreakdown components={data.engagement.components} />
 
-          <div>
-            <p className="text-xs font-bold text-slate-800 mb-1">Engagement — weekly</p>
+          <div className="rounded-lg border border-slate-200 p-4">
+            <p className="text-sm font-semibold text-brand-950 mb-2">Engagement — weekly</p>
             <TrendLine data={data.engagement.history.map((h) => ({ label: formatDate(h.date).replace(/, \d{4}$/, ""), value: h.score }))} height={170} valueName="Engagement" />
           </div>
-          <p className="text-[11px] text-slate-400">{data.methodology.risk.disclaimer}</p>
+          <p className="text-[11px] text-slate-500 leading-relaxed">{data.methodology.risk.disclaimer}</p>
           {footer?.(data)}
         </div>
       )}

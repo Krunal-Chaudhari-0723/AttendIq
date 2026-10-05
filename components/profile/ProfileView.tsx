@@ -41,8 +41,8 @@ interface Profile {
 
 const Field = ({ label, value }: { label: string; value?: React.ReactNode }) => (
   <div>
-    <p className="text-[11px] uppercase font-semibold text-slate-400">{label}</p>
-    <p className="text-sm font-semibold text-slate-900 mt-0.5">{value || "—"}</p>
+    <p className="eyebrow">{label}</p>
+    <p className="text-sm font-semibold text-brand-950 mt-1 break-words">{value || "—"}</p>
   </div>
 );
 
@@ -69,18 +69,19 @@ function PasswordCard() {
   };
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-bold flex items-center gap-2">
-          <KeyRound className="w-4 h-4 text-indigo-600" /> Change password
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <KeyRound className="w-4 h-4 text-brand-600" /> Change password
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={submit} className="space-y-3">
+          <p className="text-[11px] text-slate-500 leading-relaxed">Use at least 8 characters with letters and numbers.</p>
           <Input type="password" autoComplete="current-password" required placeholder="Current password" value={form.currentPassword} onChange={(e) => setForm({ ...form, currentPassword: e.target.value })} className="text-xs" />
           <Input type="password" autoComplete="new-password" required minLength={8} placeholder="New password (8+ characters, letters and numbers)" value={form.newPassword} onChange={(e) => setForm({ ...form, newPassword: e.target.value })} className="text-xs" />
           <Input type="password" autoComplete="new-password" required placeholder="Confirm new password" value={form.confirm} onChange={(e) => setForm({ ...form, confirm: e.target.value })} className="text-xs" />
-          {msg && <p className={`text-xs ${msg.ok ? "text-emerald-700" : "text-rose-700"}`}>{msg.text}</p>}
-          <Button type="submit" size="sm" disabled={saving} className="text-xs">
+          {msg && <p className={`text-xs p-3 rounded-lg border animate-fadeIn ${msg.ok ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-rose-50 border-rose-200 text-rose-800"}`}>{msg.text}</p>}
+          <Button type="submit" size="sm" disabled={saving} className="text-xs w-full sm:w-auto">
             {saving ? "Saving…" : "Update password"}
           </Button>
         </form>
@@ -97,11 +98,11 @@ function PhoneEditor({ initial }: { initial: string }) {
     setMsg(res.success ? { ok: true, text: "Saved." } : { ok: false, text: res.error || "Could not save." });
   };
   return (
-    <div className="space-y-1">
-      <p className="text-[11px] uppercase font-semibold text-slate-400">Phone</p>
-      <div className="flex gap-2">
-        <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="text-xs h-9" maxLength={20} />
-        <Button size="sm" variant="outline" className="text-xs h-9" onClick={save}>
+    <div className="space-y-1.5 border-t border-slate-100 pt-5">
+      <p className="eyebrow">Phone</p>
+      <div className="flex gap-2 max-w-md">
+        <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="text-xs" maxLength={20} />
+        <Button size="sm" variant="outline" className="text-xs h-10 shrink-0" onClick={save}>
           Save
         </Button>
       </div>
@@ -124,28 +125,29 @@ export function ProfileView() {
 
   if (error)
     return (
-      <p className="text-xs text-rose-700 flex items-center gap-2">
-        <AlertTriangle className="w-4 h-4" /> {error}
+      <p className="text-xs p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-2">
+        <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
       </p>
     );
-  if (!data) return <p className="text-xs text-slate-500">Loading profile…</p>;
+  if (!data) return <p className="text-xs text-slate-500 py-12 text-center">Loading profile…</p>;
 
   const s = data.student;
   const t = data.teacher;
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-6">
-        <Card>
-          <CardContent className="p-6 flex flex-col sm:flex-row sm:items-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-indigo-600 text-white text-2xl font-bold flex items-center justify-center shrink-0">{data.name.charAt(0)}</div>
-            <div className="space-y-1">
-              <h2 className="text-xl font-bold text-slate-900">{data.name}</h2>
-              <p className="text-xs text-slate-500">{data.email}</p>
-              <div className="flex flex-wrap gap-2 pt-1">
-                <Badge variant="purple" size="sm">{data.role}</Badge>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+      <div className="lg:col-span-2 space-y-4 sm:space-y-5">
+        <Card className="overflow-hidden border-t-[3px] border-t-accent-500">
+          <CardContent className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-5">
+            <div className="w-16 h-16 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-2xl font-semibold flex items-center justify-center shrink-0">{data.name.charAt(0)}</div>
+            <div className="space-y-1 min-w-0">
+              <p className="eyebrow text-brand-600">Bhagwan Mahavir University</p>
+              <h2 className="text-xl font-semibold tracking-tight text-brand-950">{data.name}</h2>
+              <p className="text-xs text-slate-500 break-all">{data.email}</p>
+              <div className="flex flex-wrap items-center gap-2 pt-1.5">
+                <Badge variant="brand" size="sm">{data.role}</Badge>
                 {s && <Badge variant={s.status === "ACTIVE" ? "success" : "warning"} size="sm">{s.status}</Badge>}
                 {t && <Badge variant={t.status === "ACTIVE" ? "success" : "warning"} size="sm">{t.status}</Badge>}
-                <span className="text-[11px] text-slate-400">Member since {formatDate(data.memberSince)}</span>
+                <span className="text-[11px] text-slate-500">Member since {formatDate(data.memberSince)}</span>
               </div>
             </div>
           </CardContent>
@@ -153,9 +155,9 @@ export function ProfileView() {
 
         {s && (
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-bold flex items-center gap-2">
-                <User className="w-4 h-4 text-indigo-600" /> Academic details
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-4 h-4 text-brand-600" /> Academic details
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-5">
@@ -173,9 +175,9 @@ export function ProfileView() {
         )}
         {t && (
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-bold flex items-center gap-2">
-                <User className="w-4 h-4 text-indigo-600" /> Faculty details
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-4 h-4 text-brand-600" /> Faculty details
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-5">
@@ -190,52 +192,52 @@ export function ProfileView() {
         )}
         {(s?.subjects.length || t?.subjects.length) ? (
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-bold flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-indigo-600" /> {s ? "My subjects" : "Classes & subjects"}
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-brand-600" /> {s ? "My subjects" : "Classes & subjects"}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="divide-y divide-slate-100 text-xs">
                 {s?.subjects.map((x) => (
-                  <li key={x.code} className="py-2 flex justify-between">
-                    <span className="font-semibold text-slate-800">
-                      {x.name} <span className="text-slate-400 font-normal">{x.code}</span>
+                  <li key={x.code} className="py-2.5 flex flex-wrap justify-between gap-x-3 gap-y-0.5">
+                    <span className="font-semibold text-brand-950">
+                      {x.name} <span className="text-slate-500 font-mono font-normal text-[11px]">{x.code}</span>
                     </span>
-                    <span className="text-slate-500">{x.teacher ?? "—"}</span>
+                    <span className="text-slate-600">{x.teacher ?? "—"}</span>
                   </li>
                 ))}
                 {t?.subjects.map((x) => (
-                  <li key={x.code} className="py-2 flex justify-between">
-                    <span className="font-semibold text-slate-800">
-                      {x.name} <span className="text-slate-400 font-normal">{x.code}</span>
+                  <li key={x.code} className="py-2.5 flex flex-wrap justify-between gap-x-3 gap-y-0.5">
+                    <span className="font-semibold text-brand-950">
+                      {x.name} <span className="text-slate-500 font-mono font-normal text-[11px]">{x.code}</span>
                     </span>
-                    <span className="text-slate-500">{x.className}</span>
+                    <span className="text-slate-600">{x.className}</span>
                   </li>
                 ))}
               </ul>
             </CardContent>
           </Card>
         ) : null}
-        <p className="text-[11px] text-slate-400">Name, email, IDs and class assignments are managed by your administrator.</p>
+        <p className="text-[11px] text-slate-500">Name, email, IDs and class assignments are managed by your administrator.</p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-5">
         {s && (
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-bold flex items-center gap-2">
-                <ScanFace className="w-4 h-4 text-indigo-600" /> Face enrollment
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ScanFace className="w-4 h-4 text-brand-600" /> Face enrollment
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-xs">
               {s.face.enrolled ? (
-                <p className="flex items-center gap-2 text-emerald-700 font-semibold">
+                <p className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold">
                   <CheckCircle2 className="w-4 h-4" /> Enrolled on {formatDate(s.face.enrolledAt)}
                 </p>
               ) : (
                 <>
-                  <p className="text-amber-700 font-semibold">Not enrolled — required for attendance.</p>
+                  <p className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-semibold">Not enrolled — required for attendance.</p>
                   <Link href="/student/face-enrollment">
                     <Button size="sm" className="text-xs">
                       Enroll now
@@ -243,7 +245,7 @@ export function ProfileView() {
                   </Link>
                 </>
               )}
-              <p className="text-slate-400">Your face data is encrypted and never shown to anyone.</p>
+              <p className="text-slate-500 leading-relaxed">Your face data is encrypted and never shown to anyone.</p>
             </CardContent>
           </Card>
         )}

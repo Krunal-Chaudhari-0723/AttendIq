@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth/auth-context";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Poppins is the typeface of the official BMU website
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -14,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AttendIQ — Smart Attendance & Student Engagement System",
-  description: "AI-Powered biometric face verification, campus geolocation bounds, engagement analytics, and explainable academic risk intelligence.",
+  title: "AttendIQ · Bhagwan Mahavir University",
+  description: "Bhagwan Mahavir University's smart attendance and student engagement platform — verified attendance, engagement analytics and academic insights.",
 };
 
 export default function RootLayout({
@@ -26,9 +29,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${poppins.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-900">
+      <body className="min-h-full flex flex-col bg-[var(--surface-page)]">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

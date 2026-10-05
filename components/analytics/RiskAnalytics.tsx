@@ -55,21 +55,21 @@ export function RiskAnalytics() {
   if (error)
     return (
       <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-        <AlertTriangle className="w-4 h-4" /> {error}
+        <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
       </div>
     );
   if (!data)
     return (
-      <div className="p-8 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200">
-        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-600" /> Evaluating risk indicators…
+      <div className="p-10 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200/90 shadow-[var(--shadow-card)]">
+        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" /> Evaluating risk indicators…
       </div>
     );
 
   const s = data.summary;
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <select value={classId} onChange={(e) => setClassId(e.target.value)} className="h-9 px-3 rounded-lg border border-slate-200 bg-white text-xs text-slate-700">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-wrap">
+        <select value={classId} onChange={(e) => setClassId(e.target.value)} className="h-10 w-full sm:w-auto rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15">
           <option value="">All classes</option>
           {data.classes.map((c) => (
             <option key={c.id} value={c.id}>
@@ -77,24 +77,24 @@ export function RiskAnalytics() {
             </option>
           ))}
         </select>
-        <span className="text-[11px] text-slate-400">{data.methodology.disclaimer}</span>
+        <span className="text-xs text-slate-500 leading-snug sm:flex-1 min-w-0">{data.methodology.disclaimer}</span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard title="High risk" value={s.high} iconBg="bg-rose-50 text-rose-600" icon={<AlertOctagon className="w-5 h-5" />} description={`of ${s.studentCount} students`} />
-        <StatsCard title="Medium risk" value={s.medium} iconBg="bg-amber-50 text-amber-600" icon={<AlertTriangle className="w-5 h-5" />} />
-        <StatsCard title="Low risk" value={s.low} iconBg="bg-emerald-50 text-emerald-600" icon={<CheckCircle2 className="w-5 h-5" />} description={`${s.unknown} without enough data`} />
-        <StatsCard title="Risk rising" value={s.rising} iconBg="bg-indigo-50 text-indigo-600" icon={<ArrowUpRight className="w-5 h-5" />} description="vs one week earlier" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatsCard title="High risk" value={s.high} iconBg="bg-rose-50 text-rose-700" icon={<AlertOctagon className="w-5 h-5" />} description={`of ${s.studentCount} students`} />
+        <StatsCard title="Medium risk" value={s.medium} iconBg="bg-amber-50 text-amber-700" icon={<AlertTriangle className="w-5 h-5" />} />
+        <StatsCard title="Low risk" value={s.low} iconBg="bg-emerald-50 text-emerald-700" icon={<CheckCircle2 className="w-5 h-5" />} description={`${s.unknown} without enough data`} />
+        <StatsCard title="Risk rising" value={s.rising} iconBg="bg-brand-50 text-brand-700" icon={<ArrowUpRight className="w-5 h-5" />} description="vs one week earlier" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold">Most common risk reasons</CardTitle>
+          <CardHeader>
+            <CardTitle>Most common risk reasons</CardTitle>
           </CardHeader>
           <CardContent>
             {data.topFactors.length === 0 ? (
-              <p className="text-xs text-slate-400 py-6 text-center">No risk rules triggered.</p>
+              <p className="text-xs text-slate-500 py-6 text-center">No risk rules triggered.</p>
             ) : (
               <LabeledBars
                 data={data.topFactors.map((f) => ({ label: FACTOR_LABELS[f.code] || f.code, value: f.count }))}
@@ -106,8 +106,8 @@ export function RiskAnalytics() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold">Risk by class</CardTitle>
+          <CardHeader>
+            <CardTitle>Risk by class</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -123,11 +123,11 @@ export function RiskAnalytics() {
               <TableBody>
                 {data.byClass.map((c) => (
                   <TableRow key={c.classId}>
-                    <TableCell className="text-xs font-semibold">{c.name}</TableCell>
-                    <TableCell className="text-center text-xs">{c.studentCount}</TableCell>
-                    <TableCell className="text-center text-xs font-bold text-rose-700">{c.high}</TableCell>
-                    <TableCell className="text-center text-xs font-bold text-amber-700">{c.medium}</TableCell>
-                    <TableCell className="text-center text-xs font-bold text-emerald-700">{c.low}</TableCell>
+                    <TableCell className="text-xs font-semibold text-brand-950">{c.name}</TableCell>
+                    <TableCell className="text-center text-xs tabular-nums">{c.studentCount}</TableCell>
+                    <TableCell className="text-center text-xs font-semibold tabular-nums text-rose-700">{c.high}</TableCell>
+                    <TableCell className="text-center text-xs font-semibold tabular-nums text-amber-700">{c.medium}</TableCell>
+                    <TableCell className="text-center text-xs font-semibold tabular-nums text-emerald-700">{c.low}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -137,8 +137,8 @@ export function RiskAnalytics() {
       </div>
 
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-bold">Students flagged medium or high ({data.atRisk.length})</CardTitle>
+        <CardHeader>
+          <CardTitle>Students flagged medium or high ({data.atRisk.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -161,8 +161,8 @@ export function RiskAnalytics() {
               ) : (
                 data.atRisk.map((r) => (
                   <TableRow key={r.studentId}>
-                    <TableCell className="text-xs font-semibold">
-                      {r.name} <span className="font-mono font-normal text-slate-400">{r.studentId}</span>
+                    <TableCell className="text-xs font-semibold text-brand-950">
+                      {r.name} <span className="font-mono font-normal text-[11px] text-slate-500">{r.studentId}</span>
                     </TableCell>
                     <TableCell className="text-xs text-slate-600">{r.className}</TableCell>
                     <TableCell>

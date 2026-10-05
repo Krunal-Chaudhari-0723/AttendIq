@@ -48,19 +48,19 @@ export function ReportFilters({
   exporting?: boolean;
 }) {
   const subjectOptions = (subjects ?? []).filter((s) => !value.classId || s.classId === value.classId);
-  const select = "h-9 px-3 rounded-lg border border-slate-200 bg-white text-xs text-slate-700";
+  const select = "h-10 w-full sm:w-auto rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15";
   return (
-    <div className="flex flex-wrap items-end gap-2">
-      <label className="text-[11px] font-semibold text-slate-500 space-y-1">
+    <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-end gap-3 rounded-xl border border-slate-200/90 bg-white p-4 shadow-[var(--shadow-card)]">
+      <label className="text-xs font-semibold text-slate-700 space-y-1.5 min-w-0">
         <span className="block">From</span>
         <input type="date" value={value.from} max={value.to} onChange={(e) => onChange({ ...value, from: e.target.value })} className={select} />
       </label>
-      <label className="text-[11px] font-semibold text-slate-500 space-y-1">
+      <label className="text-xs font-semibold text-slate-700 space-y-1.5 min-w-0">
         <span className="block">To</span>
         <input type="date" value={value.to} min={value.from} onChange={(e) => onChange({ ...value, to: e.target.value })} className={select} />
       </label>
       {classes && (
-        <label className="text-[11px] font-semibold text-slate-500 space-y-1">
+        <label className="text-xs font-semibold text-slate-700 space-y-1.5 min-w-0">
           <span className="block">Class</span>
           <select value={value.classId} onChange={(e) => onChange({ ...value, classId: e.target.value, subjectId: "" })} className={select}>
             <option value="">All classes</option>
@@ -74,7 +74,7 @@ export function ReportFilters({
         </label>
       )}
       {showSubject && subjects && (
-        <label className="text-[11px] font-semibold text-slate-500 space-y-1">
+        <label className="text-xs font-semibold text-slate-700 space-y-1.5 min-w-0">
           <span className="block">Subject</span>
           <select value={value.subjectId} onChange={(e) => onChange({ ...value, subjectId: e.target.value })} className={select}>
             <option value="">All subjects</option>
@@ -86,12 +86,12 @@ export function ReportFilters({
           </select>
         </label>
       )}
-      <div className="flex gap-2 ml-auto">
-        <Button variant="outline" size="sm" className="text-xs gap-1.5 h-9" onClick={onRefresh}>
+      <div className="col-span-2 flex flex-wrap gap-2 sm:ml-auto">
+        <Button variant="outline" size="sm" className="text-xs gap-1.5 h-10" onClick={onRefresh}>
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
         </Button>
         {onExport && (
-          <Button variant="outline" size="sm" className="text-xs gap-1.5 h-9" onClick={onExport} disabled={exporting}>
+          <Button variant="outline" size="sm" className="text-xs gap-1.5 h-10" onClick={onExport} disabled={exporting}>
             <Download className="w-3.5 h-3.5" /> {exporting ? "Exporting…" : "Export CSV"}
           </Button>
         )}

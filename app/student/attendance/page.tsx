@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { StatsCard } from "@/components/ui/stats-card";
@@ -88,38 +88,40 @@ export default function StudentAttendancePage() {
           <ReportFilters value={filters} onChange={setFilters} onRefresh={() => setReloadKey((k) => k + 1)} />
           {error && (
             <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" /> {error}
+              <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
             </div>
           )}
           {!report && !error && (
-            <div className="p-8 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200">
-              <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-600" /> Loading…
+            <div className="p-8 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200 shadow-[var(--shadow-card)]">
+              <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" /> Loading…
             </div>
           )}
           {report && s && (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatsCard title="Attendance rate" value={s.attendanceRate === null ? "—" : `${s.attendanceRate}%`} description={s.attendanceRate !== null && s.attendanceRate < 75 ? "Below the 75% requirement" : "Requirement: 75%"} icon={<CheckCircle2 className="w-5 h-5" />} iconBg="bg-emerald-50 text-emerald-600" />
-                <StatsCard title="Present" value={s.present} icon={<CheckCircle2 className="w-5 h-5" />} description={`of ${s.counted} sessions`} />
-                <StatsCard title="Late" value={s.late} icon={<Clock className="w-5 h-5" />} iconBg="bg-amber-50 text-amber-600" />
-                <StatsCard title="Absent" value={s.absent} icon={<XCircle className="w-5 h-5" />} iconBg="bg-rose-50 text-rose-600" description={s.excused ? `${s.excused} excused` : undefined} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <StatsCard title="Attendance rate" value={s.attendanceRate === null ? "—" : `${s.attendanceRate}%`} description={s.attendanceRate !== null && s.attendanceRate < 75 ? "Below the 75% requirement" : "Requirement: 75%"} icon={<CheckCircle2 className="w-5 h-5" />} iconBg={s.attendanceRate !== null && s.attendanceRate < 75 ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"} />
+                <StatsCard title="Present" value={s.present} icon={<CheckCircle2 className="w-5 h-5" />} description={`of ${s.counted} sessions`} iconBg="bg-brand-50 text-brand-700" />
+                <StatsCard title="Late" value={s.late} icon={<Clock className="w-5 h-5" />} iconBg="bg-amber-50 text-amber-700" />
+                <StatsCard title="Absent" value={s.absent} icon={<XCircle className="w-5 h-5" />} iconBg="bg-rose-50 text-rose-700" description={s.excused ? `${s.excused} excused` : undefined} />
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-bold">By subject</CardTitle>
+                  <CardHeader>
+                    <CardTitle>By subject</CardTitle>
+                    <CardDescription>Attendance rate per subject in the selected period</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {report.attendance.bySubject.length === 0 ? (
-                      <p className="text-xs text-slate-400 py-8 text-center">No sessions in this period.</p>
+                      <p className="text-xs text-slate-500 py-8 text-center">No sessions in this period.</p>
                     ) : (
                       <LabeledBars data={report.attendance.bySubject.map((x) => ({ label: `${x.name} (${x.sessions})`, value: x.attendanceRate }))} suffix="%" valueName="Attendance" />
                     )}
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-bold">Day by day</CardTitle>
+                  <CardHeader>
+                    <CardTitle>Day by day</CardTitle>
+                    <CardDescription>Daily attendance rate across all your classes</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <TrendLine data={report.attendance.byDay.map((d) => ({ label: formatDate(d.date).replace(/, \d{4}$/, ""), value: d.attendanceRate }))} suffix="%" valueName="Attendance" />
@@ -129,8 +131,9 @@ export default function StudentAttendancePage() {
             </>
           )}
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold">Attendance log ({visible.length})</CardTitle>
+            <CardHeader>
+              <CardTitle>Attendance log ({visible.length})</CardTitle>
+              <CardDescription>Every attendance record with its verification method</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -146,7 +149,7 @@ export default function StudentAttendancePage() {
                 <TableBody>
                   {!records ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-xs text-slate-400 py-6">
+                      <TableCell colSpan={5} className="text-center text-xs text-slate-500 py-6">
                         Loading…
                       </TableCell>
                     </TableRow>
@@ -159,11 +162,11 @@ export default function StudentAttendancePage() {
                   ) : (
                     visible.map((r) => (
                       <TableRow key={r._id}>
-                        <TableCell className="text-xs">
+                        <TableCell className="text-xs whitespace-nowrap tabular-nums">
                           {formatDate(r.sessionId?.startTime ?? r.markedAt)}
-                          <span className="block text-slate-400">{formatTime(r.markedAt)}</span>
+                          <span className="block text-slate-500 tabular-nums">{formatTime(r.markedAt)}</span>
                         </TableCell>
-                        <TableCell className="text-xs font-semibold">{r.sessionId?.subjectName ?? "—"}</TableCell>
+                        <TableCell className="text-xs font-semibold text-brand-950">{r.sessionId?.subjectName ?? "—"}</TableCell>
                         <TableCell className="text-xs">{r.sessionId?.mode ?? "—"}</TableCell>
                         <TableCell>
                           <Badge variant={statusVariant(r.status)} size="sm">
@@ -172,7 +175,7 @@ export default function StudentAttendancePage() {
                         </TableCell>
                         <TableCell className="text-[11px] text-slate-600">
                           {METHOD[r.verificationMethod] ?? r.verificationMethod}
-                          {r.confidence > 0 && <span className="block text-slate-400">face similarity {Math.round(r.confidence * 100)}%{r.verificationMetadata?.distanceMeters != null ? ` • ${r.verificationMetadata.distanceMeters} m from campus` : ""}</span>}
+                          {r.confidence > 0 && <span className="block text-slate-500">face similarity {Math.round(r.confidence * 100)}%{r.verificationMetadata?.distanceMeters != null ? ` • ${r.verificationMetadata.distanceMeters} m from campus` : ""}</span>}
                         </TableCell>
                       </TableRow>
                     ))

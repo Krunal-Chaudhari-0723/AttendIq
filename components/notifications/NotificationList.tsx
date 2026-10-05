@@ -22,13 +22,13 @@ export interface NotificationItem {
 export const notificationsPath = (role: string) =>
   role === "ADMIN" ? "/admin/notifications" : role === "TEACHER" ? "/teacher/notifications" : "/student/notifications";
 
-const TYPE: Record<string, { label: string; variant: "success" | "warning" | "danger" | "info" | "neutral" | "purple" }> = {
-  ATTENDANCE: { label: "Attendance", variant: "success" },
-  SESSION: { label: "Session", variant: "info" },
-  RISK_ALERT: { label: "Risk", variant: "danger" },
-  RECOMMENDATION: { label: "Recommendation", variant: "purple" },
-  REMINDER: { label: "Reminder", variant: "warning" },
-  SYSTEM: { label: "Announcement", variant: "neutral" },
+const TYPE: Record<string, { label: string; variant: "success" | "warning" | "danger" | "info" | "neutral" | "purple" | "brand" | "accent"; rule: string }> = {
+  ATTENDANCE: { label: "Attendance", variant: "success", rule: "border-l-emerald-500" },
+  SESSION: { label: "Session", variant: "brand", rule: "border-l-brand-600" },
+  RISK_ALERT: { label: "Risk", variant: "danger", rule: "border-l-rose-500" },
+  RECOMMENDATION: { label: "Recommendation", variant: "accent", rule: "border-l-accent-500" },
+  REMINDER: { label: "Reminder", variant: "warning", rule: "border-l-amber-500" },
+  SYSTEM: { label: "Announcement", variant: "neutral", rule: "border-l-slate-400" },
 };
 
 /** Full notification list with read/unread state, used on every role's notifications page. */
@@ -65,14 +65,14 @@ export function NotificationList({ reloadKey = 0 }: { reloadKey?: number }) {
 
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <CardTitle className="text-sm font-bold flex items-center gap-2">
-            <Bell className="w-4 h-4 text-indigo-600" /> Notifications {unread > 0 && <Badge variant="purple" size="sm">{unread} unread</Badge>}
+      <CardHeader>
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-3">
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="w-4 h-4 text-brand-600" /> Notifications {unread > 0 && <Badge variant="accent" size="sm">{unread} unread</Badge>}
           </CardTitle>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-slate-600 flex items-center gap-1.5">
-              <input type="checkbox" checked={onlyUnread} onChange={(e) => setOnlyUnread(e.target.checked)} /> Unread only
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="text-xs font-medium text-slate-700 flex items-center gap-1.5 mr-1 cursor-pointer">
+              <input className="w-3.5 h-3.5 accent-brand-700" type="checkbox" checked={onlyUnread} onChange={(e) => setOnlyUnread(e.target.checked)} /> Unread only
             </label>
             <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={() => setRefresh((r) => r + 1)}>
               <RefreshCw className="w-3.5 h-3.5" /> Refresh
@@ -85,36 +85,40 @@ export function NotificationList({ reloadKey = 0 }: { reloadKey?: number }) {
       </CardHeader>
       <CardContent>
         {error && (
-          <p className="text-xs text-rose-700 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4" /> {error}
+          <p className="text-xs p-3 mb-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
           </p>
         )}
         {!items && !error ? (
-          <p className="text-xs text-slate-400 py-6 text-center">Loading…</p>
+          <p className="text-xs text-slate-500 py-6 text-center">Loading…</p>
         ) : items && items.length === 0 ? (
           <div className="py-10 text-center space-y-1">
-            <Bell className="w-8 h-8 text-slate-300 mx-auto" />
-            <p className="text-sm font-semibold text-slate-700">{onlyUnread ? "No unread notifications" : "No notifications yet"}</p>
+            <div className="w-11 h-11 rounded-full bg-brand-50 border border-brand-100 text-brand-600 flex items-center justify-center mx-auto mb-3">
+              <Bell className="w-5 h-5" />
+            </div>
+            <p className="text-sm font-semibold text-brand-950">{onlyUnread ? "No unread notifications" : "No notifications yet"}</p>
             <p className="text-xs text-slate-500">Attendance updates, alerts and announcements will appear here.</p>
           </div>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="space-y-2.5">
             {items?.map((n) => {
               const t = TYPE[n.type] ?? TYPE.SYSTEM;
               return (
-                <li key={n.id} className={`py-3 px-2 rounded-lg flex items-start gap-3 ${n.isRead ? "" : "bg-indigo-50/40"}`}>
-                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.isRead ? "bg-transparent" : "bg-indigo-600"}`} aria-label={n.isRead ? "read" : "unread"} />
+                <li key={n.id} className={`p-3 sm:p-4 rounded-lg border border-slate-200 border-l-[3px] ${t.rule} flex flex-col sm:flex-row sm:items-start gap-3 transition-colors ${n.isRead ? "bg-white" : "bg-brand-50/50"}`}>
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.isRead ? "bg-slate-200" : "bg-accent-500"}`} aria-label={n.isRead ? "read" : "unread"} />
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-semibold text-slate-900">{n.title}</p>
+                      <p className={`text-sm ${n.isRead ? "font-medium text-slate-800" : "font-semibold text-brand-950"}`}>{n.title}</p>
                       <Badge variant={t.variant} size="sm">{t.label}</Badge>
                     </div>
-                    <p className="text-xs text-slate-600 mt-0.5">{n.message}</p>
-                    <p className="text-[11px] text-slate-400 mt-1">
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">{n.message}</p>
+                    <p className="text-[11px] text-slate-500 mt-1.5 tabular-nums">
                       {formatDate(n.createdAt)} {formatTime(n.createdAt)}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 pl-5 sm:pl-0">
                     {n.link && (
                       <Link href={n.link} onClick={() => markRead(n)}>
                         <Button size="sm" variant="ghost" className="text-xs gap-1">

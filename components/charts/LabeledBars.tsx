@@ -18,15 +18,17 @@ export function LabeledBars({ data, height, max = 100, suffix = "", valueName = 
     <ResponsiveContainer width="100%" height={height ?? Math.max(120, rows.length * 38)}>
       <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 56, bottom: 4, left: 8 }} barCategoryGap={8}>
         <XAxis type="number" domain={[0, max]} hide />
-        <YAxis type="category" dataKey="label" width={120} tick={{ fontSize: 11, fill: "#475569" }} tickLine={false} axisLine={false} />
+        <YAxis type="category" dataKey="label" width={120} tick={{ fontSize: 11, fill: "#64748b" }} tickLine={false} axisLine={false} />
         <Tooltip
-          cursor={{ fill: "#f1f5f9" }}
-          contentStyle={{ fontSize: 12, borderRadius: 8, borderColor: "#e2e8f0" }}
+          cursor={{ fill: "#f4f7fa" }}
+          contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e2e8f0", boxShadow: "0 4px 12px rgba(15, 23, 42, 0.08)", padding: "6px 10px" }}
+          labelStyle={{ color: "#01182b", fontWeight: 600, marginBottom: 2 }}
+          itemStyle={{ color: "#003b65" }}
           formatter={(_v, _n, item) => [(item?.payload as { text: string }).text, valueName]}
         />
         <Bar dataKey="plotted" radius={[0, 4, 4, 0]} barSize={18} isAnimationActive={false}>
           {rows.map((r) => (
-            <Cell key={r.label} fill={r.value === null ? "#e2e8f0" : r.color ?? "#4f46e5"} />
+            <Cell key={r.label} fill={r.value === null ? "#e2e8f0" : r.color ?? "#003b65"} />
           ))}
           <LabelList dataKey="text" position="right" style={{ fontSize: 11, fill: "#334155", fontWeight: 600 }} />
         </Bar>

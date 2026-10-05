@@ -34,7 +34,7 @@ export function RiskBadge({ level }: { level: string }) {
 export function RiskDirection({ direction }: { direction: string }) {
   if (direction === "RISING")
     return (
-      <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-rose-700">
+      <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-amber-700">
         <ArrowUpRight className="w-3.5 h-3.5" /> Rising
       </span>
     );

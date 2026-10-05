@@ -77,36 +77,36 @@ export function PerformanceReport({ endpoint, classes }: { endpoint: string; cla
       />
       {error && (
         <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4" /> {error}
+          <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
         </div>
       )}
       {!data && loading && (
-        <div className="p-8 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200">
-          <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-600" /> Building report…
+        <div className="p-10 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200/90 shadow-[var(--shadow-card)]">
+          <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" /> Building report…
         </div>
       )}
       {data && (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
             <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-bold">Quiz average by subject</CardTitle>
+              <CardHeader>
+                <CardTitle>Quiz average by subject</CardTitle>
               </CardHeader>
               <CardContent>
                 {data.bySubject.length === 0 ? (
-                  <p className="text-xs text-slate-400 py-8 text-center">No quiz or assignment data in this period.</p>
+                  <p className="text-xs text-slate-500 py-8 text-center">No quiz or assignment data in this period.</p>
                 ) : (
                   <LabeledBars data={data.bySubject.map((s) => ({ label: s.subject, value: s.quizAverage }))} suffix="%" valueName="Quiz average" />
                 )}
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-bold">Assignment completion by subject</CardTitle>
+              <CardHeader>
+                <CardTitle>Assignment completion by subject</CardTitle>
               </CardHeader>
               <CardContent>
                 {data.bySubject.length === 0 ? (
-                  <p className="text-xs text-slate-400 py-8 text-center">No data.</p>
+                  <p className="text-xs text-slate-500 py-8 text-center">No data.</p>
                 ) : (
                   <LabeledBars data={data.bySubject.map((s) => ({ label: s.subject, value: s.completionRate }))} suffix="%" valueName="Completion" />
                 )}
@@ -114,8 +114,8 @@ export function PerformanceReport({ endpoint, classes }: { endpoint: string; cla
             </Card>
           </div>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold">Students — lowest quiz average first</CardTitle>
+            <CardHeader>
+              <CardTitle>Students — lowest quiz average first</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -140,17 +140,17 @@ export function PerformanceReport({ endpoint, classes }: { endpoint: string; cla
                   ) : (
                     data.byStudent.map((r) => (
                       <TableRow key={r.studentId}>
-                        <TableCell className="text-xs font-semibold">
-                          {r.name} <span className="font-mono font-normal text-slate-400">{r.studentId}</span>
+                        <TableCell className="text-xs font-semibold text-brand-950">
+                          {r.name} <span className="font-mono font-normal text-[11px] text-slate-500">{r.studentId}</span>
                         </TableCell>
                         <TableCell className="text-xs text-slate-600">{r.className}</TableCell>
                         <TableCell className="text-center text-xs">{r.quizCount}</TableCell>
-                        <TableCell className="text-center text-xs font-semibold">{fmt(r.quizAverage)}</TableCell>
-                        <TableCell className="text-center text-xs">
+                        <TableCell className="text-center text-xs font-semibold tabular-nums text-brand-950">{fmt(r.quizAverage)}</TableCell>
+                        <TableCell className="text-center text-xs tabular-nums">
                           {r.assignmentsSubmitted}/{r.assignmentsDue}
                         </TableCell>
-                        <TableCell className="text-center text-xs font-semibold">{fmt(r.completionRate)}</TableCell>
-                        <TableCell className="text-center text-xs font-semibold">{fmt(r.gradeAverage)}</TableCell>
+                        <TableCell className="text-center text-xs font-semibold tabular-nums text-brand-950">{fmt(r.completionRate)}</TableCell>
+                        <TableCell className="text-center text-xs font-semibold tabular-nums text-brand-950">{fmt(r.gradeAverage)}</TableCell>
                       </TableRow>
                     ))
                   )}

@@ -84,12 +84,12 @@ interface LiveData {
   events: { id: string; studentId: string; studentName: string; status: string; code: string | null; label: string; detail: string | null; confidence: number | null; distanceMeters: number | null; at: string }[];
 }
 
-const STATUS_BADGE: Record<string, { variant: "success" | "warning" | "danger" | "info" | "neutral" | "purple"; label: string }> = {
+const STATUS_BADGE: Record<string, { variant: "success" | "warning" | "danger" | "info" | "neutral" | "brand"; label: string }> = {
   PRESENT: { variant: "success", label: "Present" },
   LATE: { variant: "warning", label: "Late" },
   EXCUSED: { variant: "info", label: "Excused" },
   ABSENT: { variant: "danger", label: "Absent" },
-  VERIFYING: { variant: "purple", label: "Verifying…" },
+  VERIFYING: { variant: "brand", label: "Verifying…" },
   NOT_MARKED: { variant: "neutral", label: "Not marked" },
 };
 
@@ -159,21 +159,24 @@ function StartSessionForm({ options, onStarted }: { options: Options; onStarted:
   };
 
   if (options.classes.length === 0) {
-    return <p className="text-xs text-slate-500">You are not assigned to any class yet. Ask an administrator to assign you.</p>;
+    return <p className="text-xs text-slate-500 p-4 rounded-lg bg-slate-50 border border-slate-200">You are not assigned to any class yet. Ask an administrator to assign you.</p>;
   }
 
+  const selectCls =
+    "w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm font-normal text-slate-900 focus:outline-none focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15";
+
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <form onSubmit={submit} className="space-y-5">
       {form.mode === "PHYSICAL" && options.locationEnforced && !options.campusConfigured && (
-        <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs flex gap-2">
+        <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex gap-2">
           <AlertTriangle className="w-4 h-4 shrink-0" />
           Campus location is not configured yet, so students cannot pass the location check for physical sessions. Ask an admin to set it in Campus Settings.
         </div>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <label className="space-y-1 text-xs font-semibold text-slate-700">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <label className="space-y-1.5 text-xs font-semibold text-slate-700">
           Class / division
-          <select required value={form.classId} onChange={(e) => setForm({ ...form, classId: e.target.value, subjectId: "" })} className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-xs font-normal">
+          <select required value={form.classId} onChange={(e) => setForm({ ...form, classId: e.target.value, subjectId: "" })} className={selectCls}>
             {options.classes.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name} — Division {c.division} ({c.studentCount} students)
@@ -181,9 +184,9 @@ function StartSessionForm({ options, onStarted }: { options: Options; onStarted:
             ))}
           </select>
         </label>
-        <label className="space-y-1 text-xs font-semibold text-slate-700">
+        <label className="space-y-1.5 text-xs font-semibold text-slate-700">
           Subject
-          <select required value={subjectId} onChange={(e) => setForm({ ...form, subjectId: e.target.value })} className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-xs font-normal">
+          <select required value={subjectId} onChange={(e) => setForm({ ...form, subjectId: e.target.value })} className={selectCls}>
             {subjects.length === 0 && <option value="">You teach no subject in this class</option>}
             {subjects.map((s) => (
               <option key={s.id} value={s.id}>
@@ -193,54 +196,60 @@ function StartSessionForm({ options, onStarted }: { options: Options; onStarted:
           </select>
         </label>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        {(["PHYSICAL", "REMOTE"] as const).map((m) => {
-          const allowed = options.allowedModes.includes(m);
-          return (
-            <button
-              type="button"
-              key={m}
-              disabled={!allowed}
-              onClick={() => setForm({ ...form, mode: m })}
-              className={`p-3 rounded-xl border text-left transition-colors disabled:opacity-40 ${form.mode === m ? "border-indigo-400 bg-indigo-50 ring-2 ring-indigo-100" : "border-slate-200 bg-white hover:bg-slate-50"}`}
-            >
-              <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                {m === "PHYSICAL" ? <MapPin className="w-3.5 h-3.5" /> : <Wifi className="w-3.5 h-3.5" />}
-                {m === "PHYSICAL" ? "Physical" : "Remote"}
-              </span>
-              <span className="text-[11px] text-slate-500">
-                {m === "PHYSICAL" ? "Campus location + face + liveness" : "Face + liveness, no location"}
-                {!allowed && " (disabled by admin)"}
-              </span>
-            </button>
-          );
-        })}
+      <div className="space-y-1.5 border-t border-slate-100 pt-5">
+        <p className="text-xs font-semibold text-slate-700">Verification mode</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {(["PHYSICAL", "REMOTE"] as const).map((m) => {
+            const allowed = options.allowedModes.includes(m);
+            return (
+              <button
+                type="button"
+                key={m}
+                disabled={!allowed}
+                onClick={() => setForm({ ...form, mode: m })}
+                className={`relative flex items-start gap-3 p-3.5 rounded-lg border text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${form.mode === m ? "border-brand-600 bg-brand-50/70 ring-3 ring-brand-500/10" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"}`}
+              >
+                <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${form.mode === m ? "bg-brand-700 text-white" : "bg-slate-100 text-slate-500"}`}>
+                  {m === "PHYSICAL" ? <MapPin className="w-4 h-4" /> : <Wifi className="w-4 h-4" />}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-brand-950">{m === "PHYSICAL" ? "Physical" : "Remote"}</span>
+                  <span className="block text-[11px] text-slate-500 leading-snug">
+                    {m === "PHYSICAL" ? "Campus location + face + liveness" : "Face + liveness, no location"}
+                    {!allowed && " (disabled by admin)"}
+                  </span>
+                </span>
+                {form.mode === m && <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-accent-500" aria-hidden="true" />}
+              </button>
+            );
+          })}
+        </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        <label className="space-y-1 text-xs font-semibold text-slate-700">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-100 pt-5">
+        <label className="space-y-1.5 text-xs font-semibold text-slate-700">
           Duration (min)
-          <Input type="number" required min={options.limits.minMinutes} max={options.limits.maxMinutes} value={form.durationMinutes} onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })} className="text-xs" />
+          <Input type="number" required min={options.limits.minMinutes} max={options.limits.maxMinutes} value={form.durationMinutes} onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })} className="font-normal" />
         </label>
-        <label className="space-y-1 text-xs font-semibold text-slate-700">
+        <label className="space-y-1.5 text-xs font-semibold text-slate-700">
           Late after (min)
-          <Input type="number" required min={0} max={form.durationMinutes} value={form.lateAfterMinutes} onChange={(e) => setForm({ ...form, lateAfterMinutes: Number(e.target.value) })} className="text-xs" />
+          <Input type="number" required min={0} max={form.durationMinutes} value={form.lateAfterMinutes} onChange={(e) => setForm({ ...form, lateAfterMinutes: Number(e.target.value) })} className="font-normal" />
         </label>
-        <label className="space-y-1 text-xs font-semibold text-slate-700">
+        <label className="space-y-1.5 text-xs font-semibold text-slate-700">
           Room (optional)
-          <Input maxLength={60} value={form.room} placeholder="e.g. Lab 302" onChange={(e) => setForm({ ...form, room: e.target.value })} className="text-xs" />
+          <Input maxLength={60} value={form.room} placeholder="e.g. Lab 302" onChange={(e) => setForm({ ...form, room: e.target.value })} className="font-normal" />
         </label>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-xs text-slate-700">
-          <input type="checkbox" checked={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.checked })} className="w-4 h-4" />
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+          <input type="checkbox" checked={form.schedule} onChange={(e) => setForm({ ...form, schedule: e.target.checked })} className="w-4 h-4 accent-brand-700" />
           Schedule for later
         </label>
         {form.schedule && (
-          <Input type="datetime-local" required value={form.startAt} onChange={(e) => setForm({ ...form, startAt: e.target.value })} className="text-xs w-60" />
+          <Input type="datetime-local" required value={form.startAt} onChange={(e) => setForm({ ...form, startAt: e.target.value })} className="w-full sm:w-60" />
         )}
       </div>
-      {error && <p className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-lg p-2">{error}</p>}
-      <Button type="submit" disabled={saving || !subjectId} className="w-full text-xs font-bold gap-2" variant="success">
+      {error && <p className="text-xs text-rose-800 bg-rose-50 border border-rose-200 rounded-lg p-3">{error}</p>}
+      <Button type="submit" disabled={saving || !subjectId} className="w-full" size="lg" variant="accent">
         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : form.schedule ? <CalendarClock className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         {form.schedule ? "Schedule session" : "Start attendance session now"}
       </Button>
@@ -316,12 +325,12 @@ function LiveMonitor({ sessionId, onEnded }: { sessionId: string; onEnded: () =>
 
   if (!data) {
     return error ? (
-      <p className="text-xs text-rose-700 flex items-center gap-2">
-        <AlertTriangle className="w-4 h-4" /> {error}
+      <p className="text-xs text-rose-800 bg-rose-50 border border-rose-200 rounded-lg p-3 flex items-center gap-2">
+        <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
       </p>
     ) : (
-      <p className="text-xs text-slate-500 flex items-center gap-2 p-8">
-        <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" /> Loading live session…
+      <p className="text-xs text-slate-500 flex items-center justify-center gap-2 p-10 rounded-xl border border-slate-200 bg-white">
+        <RefreshCw className="w-4 h-4 animate-spin text-brand-600" /> Loading live session…
       </p>
     );
   }
@@ -336,40 +345,57 @@ function LiveMonitor({ sessionId, onEnded }: { sessionId: string; onEnded: () =>
   return (
     <div className="space-y-6">
       {flash && (
-        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex justify-between">
-          {flash}
-          <button onClick={() => setFlash(null)}>✕</button>
+        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-between gap-3 animate-fadeIn">
+          <span className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            {flash}
+          </span>
+          <button onClick={() => setFlash(null)} className="text-emerald-700 hover:text-emerald-900 px-1">✕</button>
         </div>
       )}
-      {error && <p className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-lg p-2">{error}</p>}
+      {error && (
+        <p className="text-xs text-rose-800 bg-rose-50 border border-rose-200 rounded-lg p-3 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          {error}
+        </p>
+      )}
 
-      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-white shadow-lg">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border ${isLive ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" : "bg-slate-700/50 text-slate-300 border-slate-600"}`}>
-              <Radio className={`w-3.5 h-3.5 ${isLive ? "animate-pulse" : ""}`} />
+      <div className="rounded-xl bg-brand-900 text-white p-5 sm:p-6 border border-brand-800 relative overflow-hidden">
+        <span className="absolute left-0 inset-y-0 w-1 bg-accent-500" aria-hidden="true" />
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          <div className="space-y-3 min-w-0">
+            <span
+              className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[11px] font-semibold tracking-wider border ${
+                isLive ? "bg-emerald-500/15 text-emerald-200 border-emerald-400/30" : "bg-white/5 text-brand-100 border-white/15"
+              }`}
+            >
+              {isLive ? (
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+              ) : (
+                <Radio className="w-3.5 h-3.5" />
+              )}
               {isLive ? "SESSION LIVE" : session.status}
               {isLive && session.mode === "PHYSICAL" && " • CAMPUS CHECK ON"}
             </span>
-            <h2 className="text-2xl font-bold tracking-tight">
-              {session.subjectName} <span className="text-slate-400 font-normal">• {session.className}{session.division ? ` (${session.division})` : ""}</span>
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight leading-snug">
+              {session.subjectName} <span className="text-brand-100/70 font-normal">• {session.className}{session.division ? ` (${session.division})` : ""}</span>
             </h2>
-            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300">
-              <span className="flex items-center gap-1">{session.mode === "PHYSICAL" ? <MapPin className="w-3.5 h-3.5" /> : <Wifi className="w-3.5 h-3.5" />} {session.mode}</span>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-brand-100/80">
+              <span className="flex items-center gap-1.5">{session.mode === "PHYSICAL" ? <MapPin className="w-3.5 h-3.5 text-accent-300" /> : <Wifi className="w-3.5 h-3.5 text-accent-300" />} {session.mode}</span>
               {session.room && <span>• {session.room}</span>}
-              <span>• {formatTime(session.startTime)} – {formatTime(session.endTime)}</span>
-              <span>• late after {formatTime(new Date(lateAt))}</span>
+              <span className="tabular-nums">• {formatTime(session.startTime)} – {formatTime(session.endTime)}</span>
+              <span className="tabular-nums">• late after {formatTime(new Date(lateAt))}</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between sm:justify-start gap-4 lg:gap-5 shrink-0">
             {isLive && (
-              <div className="text-right">
-                <p className="text-[10px] uppercase text-slate-400 font-semibold">Time remaining</p>
-                <p className="font-mono text-3xl font-extrabold">{fmtDuration(end - now)}</p>
+              <div className="lg:text-right rounded-lg bg-white/5 border border-white/10 px-4 py-2">
+                <p className="text-[10px] uppercase tracking-wider text-brand-100/70 font-semibold">Time remaining</p>
+                <p className="font-mono text-3xl font-semibold tabular-nums leading-tight">{fmtDuration(end - now)}</p>
               </div>
             )}
             {isLive && (
-              <Button variant="danger" size="sm" className="text-xs gap-1.5" onClick={() => setConfirmEnd(true)}>
+              <Button variant="danger" size="md" onClick={() => setConfirmEnd(true)}>
                 <Square className="w-3.5 h-3.5" /> End Session
               </Button>
             )}
@@ -377,35 +403,51 @@ function LiveMonitor({ sessionId, onEnded }: { sessionId: string; onEnded: () =>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {[
-          { label: "Present", value: counts.present, icon: CheckCircle2, cls: "text-emerald-700" },
-          { label: "Late", value: counts.late, icon: Clock, cls: "text-amber-700" },
-          { label: isLive ? "Not yet verified" : "Absent", value: isLive ? counts.notMarked + counts.verifying : counts.absent, icon: XCircle, cls: "text-slate-700" },
-          { label: "Verifying now", value: counts.verifying, icon: ScanFace, cls: "text-indigo-700" },
-          { label: "Turnout", value: `${attended}/${counts.total}`, icon: Users, cls: "text-slate-900" },
+          { label: "Present", value: counts.present, icon: CheckCircle2, cls: "text-emerald-700", chip: "bg-emerald-50 text-emerald-700" },
+          { label: "Late", value: counts.late, icon: Clock, cls: "text-amber-700", chip: "bg-amber-50 text-amber-700" },
+          { label: isLive ? "Not yet verified" : "Absent", value: isLive ? counts.notMarked + counts.verifying : counts.absent, icon: XCircle, cls: isLive ? "text-slate-700" : "text-rose-700", chip: isLive ? "bg-slate-100 text-slate-600" : "bg-rose-50 text-rose-700" },
+          { label: "Verifying now", value: counts.verifying, icon: ScanFace, cls: "text-brand-700", chip: "bg-brand-50 text-brand-700" },
+          { label: "Turnout", value: `${attended}/${counts.total}`, icon: Users, cls: "text-brand-950", chip: "bg-accent-50 text-accent-600" },
         ].map((k) => (
-          <Card key={k.label}>
+          <Card key={k.label} className={k.label === "Turnout" ? "col-span-2 sm:col-span-1" : ""}>
             <CardContent className="p-4">
-              <p className="text-[11px] uppercase font-semibold text-slate-500 flex items-center gap-1.5">
-                <k.icon className="w-3.5 h-3.5" /> {k.label}
-              </p>
-              <p className={`text-2xl font-extrabold mt-1 ${k.cls}`}>{k.value}</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="eyebrow truncate">{k.label}</p>
+                <span className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 ${k.chip}`}>
+                  <k.icon className="w-3.5 h-3.5" />
+                </span>
+              </div>
+              <p className={`text-3xl font-semibold mt-1 tabular-nums tracking-tight ${k.cls}`}>{k.value}</p>
+              {k.label === "Turnout" && (
+                <div className="mt-2 h-1.5 rounded-full bg-slate-100 overflow-hidden" aria-hidden="true">
+                  <div className="h-full rounded-full bg-brand-600 transition-all" style={{ width: `${counts.total ? Math.round((attended / counts.total) * 100) : 0}%` }} />
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <Card className="xl:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold">Class roster</CardTitle>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-5 items-start">
+        <Card className="xl:col-span-2 min-w-0">
+          <CardHeader>
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle>Class roster</CardTitle>
+              {isLive && (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+                  Live
+                </span>
+              )}
+            </div>
             <p className="text-xs text-slate-500">
               Updates every 3 seconds{counts.averageConfidence !== null ? ` • average face similarity ${Math.round(counts.averageConfidence * 100)}%` : ""}
               {counts.notEnrolled > 0 ? ` • ${counts.notEnrolled} student(s) have not enrolled their face` : ""}
             </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-5">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -422,28 +464,28 @@ function LiveMonitor({ sessionId, onEnded }: { sessionId: string; onEnded: () =>
                   const attendedRow = r.status === "PRESENT" || r.status === "LATE";
                   return (
                     <TableRow key={r.studentId}>
-                      <TableCell>
-                        <p className="text-xs font-semibold text-slate-900">{r.name}</p>
-                        <p className="text-[11px] text-slate-400 font-mono">
+                      <TableCell className="py-3">
+                        <p className="text-sm font-semibold text-brand-950 whitespace-nowrap">{r.name}</p>
+                        <p className="text-[11px] text-slate-500 tabular-nums whitespace-nowrap">
                           {r.studentId}
-                          {!r.faceEnrolled && <span className="ml-1 text-amber-600 font-sans">• face not enrolled</span>}
+                          {!r.faceEnrolled && <span className="ml-1 text-amber-700 font-medium">• face not enrolled</span>}
                         </p>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={badge.variant} size="sm">{badge.label}</Badge>
-                        {r.markedAt && <p className="text-[11px] text-slate-400 mt-0.5">{formatTime(r.markedAt)}</p>}
+                        <Badge variant={badge.variant} size="md">{badge.label}</Badge>
+                        {r.markedAt && <p className="text-[11px] text-slate-500 mt-1 tabular-nums">{formatTime(r.markedAt)}</p>}
                       </TableCell>
-                      <TableCell className="text-[11px] text-slate-600">
-                        {r.verificationMethod ? METHOD_LABEL[r.verificationMethod] ?? r.verificationMethod : r.failedAttempts ? <span className="text-rose-600">{r.failedAttempts} failed attempt(s)</span> : "—"}
-                        {r.confidence !== null && <span className="block text-slate-400">similarity {Math.round(r.confidence * 100)}%{r.distanceMeters !== null ? ` • ${r.distanceMeters} m` : ""}</span>}
-                        {r.note && <span className="block text-slate-400 italic">{r.note}</span>}
+                      <TableCell className="text-xs text-slate-600 min-w-40">
+                        {r.verificationMethod ? METHOD_LABEL[r.verificationMethod] ?? r.verificationMethod : r.failedAttempts ? <span className="text-rose-700 font-medium">{r.failedAttempts} failed attempt(s)</span> : "—"}
+                        {r.confidence !== null && <span className="block text-[11px] text-slate-500 tabular-nums">similarity {Math.round(r.confidence * 100)}%{r.distanceMeters !== null ? ` • ${r.distanceMeters} m` : ""}</span>}
+                        {r.note && <span className="block text-[11px] text-slate-500 italic">{r.note}</span>}
                       </TableCell>
                       <TableCell>
                         {attendedRow ? (
                           <select
                             value={r.participation ?? ""}
                             onChange={(e) => e.target.value !== "" && rate(r.studentId, Number(e.target.value))}
-                            className="h-8 px-2 rounded-md border border-slate-200 bg-white text-[11px]"
+                            className="h-8 px-2 rounded-md border border-slate-300 bg-white text-xs text-slate-900 focus:outline-none focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15"
                           >
                             <option value="">Rate…</option>
                             {PARTICIPATION.map((label, i) => (
@@ -453,14 +495,17 @@ function LiveMonitor({ sessionId, onEnded }: { sessionId: string; onEnded: () =>
                             ))}
                           </select>
                         ) : (
-                          <span className="text-[11px] text-slate-300">—</span>
+                          <span className="text-xs text-slate-300">—</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
                         {r.verificationMethod && r.verificationMethod !== "MANUAL" && r.verificationMethod !== "NOT_VERIFIED" ? (
-                          <span className="text-[11px] text-emerald-700 font-semibold">Verified</span>
+                          <span className="inline-flex items-center gap-1 text-xs text-emerald-700 font-semibold">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Verified
+                          </span>
                         ) : (
-                          <Button size="sm" variant="ghost" className="text-[11px] gap-1" onClick={() => setManual(r)}>
+                          <Button size="sm" variant="outline" onClick={() => setManual(r)}>
                             <PencilLine className="w-3.5 h-3.5" /> Manual
                           </Button>
                         )}
@@ -473,33 +518,41 @@ function LiveMonitor({ sessionId, onEnded }: { sessionId: string; onEnded: () =>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold">Verification events</CardTitle>
+        <Card className="min-w-0">
+          <CardHeader>
+            <CardTitle>Verification events</CardTitle>
             <p className="text-xs text-slate-500">Successful and rejected attempts (no biometric data shown)</p>
           </CardHeader>
-          <CardContent className="max-h-[560px] overflow-y-auto">
+          <CardContent className="max-h-[560px] overflow-y-auto p-3 sm:p-4">
             {data.events.length === 0 ? (
-              <p className="text-xs text-slate-400 py-6 text-center">No verification attempts yet.</p>
+              <p className="text-xs text-slate-500 py-8 text-center">
+                <ScanFace className="w-5 h-5 mx-auto mb-2 text-brand-400" />
+                No verification attempts yet.
+              </p>
             ) : (
               <ul className="space-y-2">
                 {data.events.map((e) => (
-                  <li key={e.id} className={`p-2.5 rounded-lg border text-xs ${e.status === "SUCCEEDED" ? "bg-emerald-50/60 border-emerald-100" : "bg-rose-50/50 border-rose-100"}`}>
+                  <li
+                    key={e.id}
+                    className={`pl-3 pr-3 py-2.5 rounded-lg border border-l-[3px] text-xs bg-white ${
+                      e.status === "SUCCEEDED" ? "border-slate-200 border-l-emerald-500" : "border-slate-200 border-l-rose-500 bg-rose-50/40"
+                    }`}
+                  >
                     <div className="flex justify-between gap-2">
-                      <span className="font-semibold text-slate-900">{e.studentName}</span>
-                      <span className="text-[11px] text-slate-400">{formatTime(e.at)}</span>
+                      <span className="font-semibold text-brand-950">{e.studentName}</span>
+                      <span className="text-[11px] text-slate-500 tabular-nums whitespace-nowrap">{formatTime(e.at)}</span>
                     </div>
-                    <p className={e.status === "SUCCEEDED" ? "text-emerald-700" : "text-rose-700"}>
-                      {e.status === "SUCCEEDED" ? <CheckCircle2 className="w-3 h-3 inline mr-1" /> : <XCircle className="w-3 h-3 inline mr-1" />}
+                    <p className={`mt-0.5 font-medium ${e.status === "SUCCEEDED" ? "text-emerald-700" : "text-rose-700"}`}>
+                      {e.status === "SUCCEEDED" ? <CheckCircle2 className="w-3.5 h-3.5 inline mr-1 -mt-0.5" /> : <XCircle className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />}
                       {e.label}
                     </p>
                     {(e.confidence !== null || e.distanceMeters !== null) && (
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-slate-500 tabular-nums mt-0.5">
                         {e.confidence !== null ? `similarity ${Math.round(e.confidence * 100)}%` : ""}
                         {e.distanceMeters !== null ? `${e.confidence !== null ? " • " : ""}${e.distanceMeters} m from campus` : ""}
                       </p>
                     )}
-                    {e.detail && e.detail !== e.label && <p className="text-[11px] text-slate-500">{e.detail}</p>}
+                    {e.detail && e.detail !== e.label && <p className="text-[11px] text-slate-500 mt-0.5">{e.detail}</p>}
                   </li>
                 ))}
               </ul>
@@ -510,7 +563,7 @@ function LiveMonitor({ sessionId, onEnded }: { sessionId: string; onEnded: () =>
 
       {!isLive && (
         <div className="flex justify-end">
-          <Button variant="outline" size="sm" className="text-xs" onClick={onEnded}>
+          <Button variant="outline" size="sm" onClick={onEnded}>
             Back to sessions
           </Button>
         </div>
@@ -529,15 +582,15 @@ function LiveMonitor({ sessionId, onEnded }: { sessionId: string; onEnded: () =>
 
       <Modal isOpen={Boolean(manual)} onClose={() => setManual(null)} title={`Manual attendance: ${manual?.name ?? ""}`} subtitle="Recorded as a manual teacher entry with your reason — not as a verified check-in." maxWidth="sm">
         <div className="space-y-3">
-          <select value={manualForm.status} onChange={(e) => setManualForm({ ...manualForm, status: e.target.value })} className="w-full h-10 px-3 rounded-lg border border-slate-300 bg-white text-xs">
+          <select value={manualForm.status} onChange={(e) => setManualForm({ ...manualForm, status: e.target.value })} className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:border-brand-500 focus:ring-3 focus:ring-brand-500/15">
             <option value="PRESENT">Present</option>
             <option value="LATE">Late</option>
             <option value="EXCUSED">Excused</option>
             <option value="ABSENT">Absent</option>
           </select>
-          <Input placeholder="Reason (required), e.g. phone camera broken, verified in person" value={manualForm.reason} onChange={(e) => setManualForm({ ...manualForm, reason: e.target.value })} className="text-xs" maxLength={200} />
-          {manualError && <p className="text-xs text-rose-700">{manualError}</p>}
-          <div className="flex justify-end gap-2">
+          <Input placeholder="Reason (required), e.g. phone camera broken, verified in person" value={manualForm.reason} onChange={(e) => setManualForm({ ...manualForm, reason: e.target.value })} maxLength={200} />
+          {manualError && <p className="text-xs text-rose-800 bg-rose-50 border border-rose-200 rounded-lg p-2">{manualError}</p>}
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
             <Button variant="outline" size="sm" onClick={() => setManual(null)}>
               Cancel
             </Button>
@@ -580,17 +633,21 @@ export default function TeacherLiveAttendancePage() {
         <div className="space-y-6">
           {error && (
             <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" /> {error}
+              <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
             </div>
           )}
 
           {active.length > 1 && (
-            <div className="flex flex-wrap gap-2">
-              {active.map((s) => (
-                <Button key={s.id} size="sm" variant={selected === s.id ? "primary" : "outline"} className="text-xs" onClick={() => setSelected(s.id)}>
-                  {s.subjectName} • {s.className}
-                </Button>
-              ))}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-wrap">
+              <span className="eyebrow">Live sessions</span>
+              <div className="flex flex-wrap gap-2">
+                {active.map((s) => (
+                  <Button key={s.id} size="sm" variant={selected === s.id ? "primary" : "outline"} onClick={() => setSelected(s.id)}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                    {s.subjectName} • {s.className}
+                  </Button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -604,12 +661,16 @@ export default function TeacherLiveAttendancePage() {
               }}
             />
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-              <Card className="lg:col-span-3">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <Play className="w-4 h-4 text-emerald-600" /> Start an attendance session
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5 items-start">
+              <Card className="lg:col-span-3 border-t-[3px] border-t-accent-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center shrink-0">
+                      <Play className="w-3.5 h-3.5" />
+                    </span>
+                    Start an attendance session
                   </CardTitle>
+                  <p className="text-xs text-slate-500">Choose the class, subject and verification mode. Students check in from their own device.</p>
                 </CardHeader>
                 <CardContent>
                   {options ? (
@@ -621,26 +682,27 @@ export default function TeacherLiveAttendancePage() {
                       }}
                     />
                   ) : (
-                    <p className="text-xs text-slate-500 flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" /> Loading your classes…
+                    <p className="text-xs text-slate-500 flex items-center gap-2 py-6 justify-center">
+                      <RefreshCw className="w-4 h-4 animate-spin text-brand-600" /> Loading your classes…
                     </p>
                   )}
                 </CardContent>
               </Card>
-              <div className="lg:col-span-2 space-y-6">
+              <div className="lg:col-span-2 space-y-4 sm:space-y-5">
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-bold">Scheduled</CardTitle>
+                  <CardHeader className="flex flex-row items-center gap-2 space-y-0">
+                    <CalendarClock className="w-4 h-4 text-brand-600" />
+                    <CardTitle>Scheduled</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className={upcoming.length === 0 ? "" : "p-0"}>
                     {upcoming.length === 0 ? (
-                      <p className="text-xs text-slate-400">No scheduled sessions.</p>
+                      <p className="text-xs text-slate-500 text-center py-2">No scheduled sessions.</p>
                     ) : (
-                      <ul className="space-y-2">
+                      <ul className="divide-y divide-slate-100">
                         {upcoming.map((s) => (
-                          <li key={s.id} className="text-xs flex justify-between gap-2">
-                            <span className="font-semibold text-slate-800">{s.subjectName} • {s.className}</span>
-                            <span className="text-slate-500">{formatDate(s.startTime)} {formatTime(s.startTime)}</span>
+                          <li key={s.id} className="text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-3 px-5 py-3">
+                            <span className="font-semibold text-brand-950">{s.subjectName} • {s.className}</span>
+                            <span className="text-slate-500 tabular-nums whitespace-nowrap">{formatDate(s.startTime)} {formatTime(s.startTime)}</span>
                           </li>
                         ))}
                       </ul>
@@ -648,19 +710,20 @@ export default function TeacherLiveAttendancePage() {
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-bold">Recent sessions</CardTitle>
+                  <CardHeader className="flex flex-row items-center gap-2 space-y-0">
+                    <Clock className="w-4 h-4 text-brand-600" />
+                    <CardTitle>Recent sessions</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className={recent.length === 0 ? "" : "p-2"}>
                     {recent.length === 0 ? (
-                      <p className="text-xs text-slate-400">No sessions yet.</p>
+                      <p className="text-xs text-slate-500 text-center py-2">No sessions yet.</p>
                     ) : (
-                      <ul className="space-y-1">
+                      <ul className="space-y-0.5">
                         {recent.map((s) => (
                           <li key={s.id}>
-                            <button onClick={() => setSelected(s.id)} className="w-full text-left text-xs flex justify-between gap-2 p-2 rounded-lg hover:bg-slate-50">
-                              <span className="font-semibold text-slate-800">{s.subjectName} • {s.className}</span>
-                              <span className="text-slate-500">{formatDate(s.startTime)}</span>
+                            <button onClick={() => setSelected(s.id)} className="group w-full text-left text-xs flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-brand-50/60 transition-colors">
+                              <span className="font-semibold text-brand-950 group-hover:text-brand-800">{s.subjectName} • {s.className}</span>
+                              <span className="text-slate-500 tabular-nums whitespace-nowrap">{formatDate(s.startTime)}</span>
                             </button>
                           </li>
                         ))}

@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { EmptyState } from "@/components/ui/states";
 import { apiFetch } from "@/lib/api";
-import { BookOpen, Plus, RefreshCw, Users } from "lucide-react";
+import { BookOpen, Plus, RefreshCw, Users, CheckCircle, AlertTriangle } from "lucide-react";
 
 interface ClassItem {
   _id: string;
@@ -99,40 +100,38 @@ export default function AdminClassesPage() {
       >
         <div className="space-y-6">
           {actionSuccess && (
-            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold animate-fadeIn">
+            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2 animate-fadeIn">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
               {actionSuccess}
             </div>
           )}
 
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-slate-800">Academic Divisions</h3>
-              <p className="text-xs text-slate-500">Manage class codes and student capacities</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => {
-                  setIsLoading(true);
-                  fetchClasses();
-                }} className="text-xs gap-1.5">
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setIsAddModalOpen(true)}
-                className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 shadow-sm"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Class
-              </Button>
-            </div>
-          </div>
-
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-indigo-600" />
-                <span>Active Classes & Cohorts</span>
-              </CardTitle>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 space-y-0">
+              <div className="min-w-0">
+                <h3 className="eyebrow text-brand-600 mb-0.5">Academic Divisions</h3>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-brand-600" />
+                  <span>Active Classes & Cohorts</span>
+                </CardTitle>
+                <p className="text-xs text-slate-500 mt-1">Manage class codes and student capacities</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <Button variant="outline" size="sm" onClick={() => {
+                    setIsLoading(true);
+                    fetchClasses();
+                  }} className="text-xs gap-1.5">
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="text-xs gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Class
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -150,32 +149,34 @@ export default function AdminClassesPage() {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-xs text-slate-400">
-                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-600" />
+                      <TableCell colSpan={7} className="text-center py-8 text-xs text-slate-500">
+                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" />
                         Loading classes...
                       </TableCell>
                     </TableRow>
                   ) : classes.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-xs text-slate-500">
-                        No classes configured yet.
+                      <TableCell colSpan={7} className="p-0">
+                        <EmptyState icon={BookOpen} title="No classes configured yet." />
                       </TableCell>
                     </TableRow>
                   ) : (
                     classes.map((cls) => (
                       <TableRow key={cls._id}>
-                        <TableCell className="font-mono text-xs font-bold text-slate-700">
-                          {cls.code}
-                        </TableCell>
-                        <TableCell className="font-semibold text-xs text-slate-900">{cls.name}</TableCell>
                         <TableCell>
-                          <Badge variant="purple" size="sm">
+                          <Badge variant="brand" size="sm" className="font-mono">
+                            {cls.code}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-semibold text-xs text-brand-950 whitespace-nowrap">{cls.name}</TableCell>
+                        <TableCell>
+                          <Badge variant="neutral" size="sm">
                             Div {cls.division}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-xs">Semester {cls.semester}</TableCell>
-                        <TableCell className="text-xs font-mono text-slate-600">{cls.academicYear}</TableCell>
-                        <TableCell className="text-xs">
+                        <TableCell className="text-xs text-slate-700 whitespace-nowrap">Semester {cls.semester}</TableCell>
+                        <TableCell className="text-xs font-mono text-slate-600 whitespace-nowrap">{cls.academicYear}</TableCell>
+                        <TableCell className="text-xs whitespace-nowrap">
                           {cls.classTeacher?.name ? (
                             <span className="font-medium text-slate-800">{cls.classTeacher.name}</span>
                           ) : (
@@ -183,7 +184,7 @@ export default function AdminClassesPage() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1.5 text-xs text-slate-700 font-semibold">
+                          <div className="flex items-center gap-1.5 text-xs text-brand-950 font-semibold tabular-nums whitespace-nowrap">
                             <Users className="w-3.5 h-3.5 text-slate-400" />
                             <span>{cls.studentCount ?? 0} Students</span>
                           </div>
@@ -205,79 +206,86 @@ export default function AdminClassesPage() {
           subtitle="Define class code, division, and semester"
         >
           {formError && (
-            <div className="p-3 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+            <div className="p-3 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2 animate-fadeIn">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-px" />
               {formError}
             </div>
           )}
-          <form onSubmit={handleCreateClass} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Class Name *</label>
-                <Input
-                  required
-                  placeholder="e.g. MCA Sem 3"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="text-xs"
-                />
+          <form onSubmit={handleCreateClass} className="space-y-5">
+            <div className="space-y-3">
+              <p className="eyebrow text-brand-600">Class identity</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Class Name *</label>
+                  <Input
+                    required
+                    placeholder="e.g. MCA Sem 3"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Class Code *</label>
+                  <Input
+                    required
+                    placeholder="e.g. MCA-3"
+                    value={formData.code}
+                    onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                    className="text-sm"
+                  />
+                </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Class Code *</label>
+            </div>
+
+            <div className="space-y-3 border-t border-slate-100 pt-5">
+              <p className="eyebrow text-brand-600">Division &amp; capacity</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Division</label>
+                  <Input
+                    value={formData.division}
+                    onChange={(e) => setFormData({ ...formData, division: e.target.value.toUpperCase() })}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Semester</label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={formData.semester}
+                    onChange={(e) => setFormData({ ...formData, semester: Number(e.target.value) })}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Capacity</label>
+                  <Input
+                    type="number"
+                    value={formData.studentCount}
+                    onChange={(e) => setFormData({ ...formData, studentCount: Number(e.target.value) })}
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700">Department</label>
                 <Input
-                  required
-                  placeholder="e.g. MCA-3"
-                  value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                  className="text-xs"
+                  value={formData.department}
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                  className="text-sm"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Division</label>
-                <Input
-                  value={formData.division}
-                  onChange={(e) => setFormData({ ...formData, division: e.target.value.toUpperCase() })}
-                  className="text-xs"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Semester</label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={formData.semester}
-                  onChange={(e) => setFormData({ ...formData, semester: Number(e.target.value) })}
-                  className="text-xs"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Capacity</label>
-                <Input
-                  type="number"
-                  value={formData.studentCount}
-                  onChange={(e) => setFormData({ ...formData, studentCount: Number(e.target.value) })}
-                  className="text-xs"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Department</label>
-              <Input
-                value={formData.department}
-                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                className="text-xs"
-              />
-            </div>
-
-            <div className="pt-2 flex justify-end gap-2">
+            <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => setIsAddModalOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" variant="primary" size="sm" disabled={formSubmitting} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              <Button type="submit" variant="primary" size="sm" disabled={formSubmitting}>
                 {formSubmitting ? "Creating..." : "Save Class"}
               </Button>
             </div>

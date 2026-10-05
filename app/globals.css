@@ -1,55 +1,93 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: 210 40% 98%; /* #F8FAFC */
-    --foreground: 222 47% 11%; /* #0F172A */
-    
-    --sidebar-bg: #0F172A;
-    --sidebar-fg: #94A3B8;
-    --sidebar-active: #6366F1;
-    --sidebar-active-bg: rgba(99, 102, 241, 0.12);
-    
-    --card: #FFFFFF;
-    --card-foreground: #0F172A;
-    --border: #E2E8F0;
+/* ==========================================================================
+   AttendIQ × Bhagwan Mahavir University — design tokens
+   Brand colours are sampled from the official BMU crest:
+     navy   #003b65  → brand-700
+     orange #fd6c40  → accent-500
+   Every component uses these scales (bg-brand-*, text-accent-*, …);
+   status colours stay semantic (emerald / amber / rose).
+   ========================================================================== */
+@theme {
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-    --primary: #4F46E5;
-    --primary-foreground: #FFFFFF;
-    
-    --secondary: #F1F5F9;
-    --secondary-foreground: #0F172A;
+  /* BMU institutional navy */
+  --color-brand-50: #eef5fb;
+  --color-brand-100: #d8e7f4;
+  --color-brand-200: #b3cfe8;
+  --color-brand-300: #82afd6;
+  --color-brand-400: #4c88bd;
+  --color-brand-500: #2667a1;
+  --color-brand-600: #0f4f84;
+  --color-brand-700: #003b65;
+  --color-brand-800: #003154;
+  --color-brand-900: #022743;
+  --color-brand-950: #01182b;
 
-    --accent-blue: #3B82F6;
-    --accent-purple: #8B5CF6;
-    
-    --status-success-bg: #ECFDF5;
-    --status-success-fg: #047857;
-    --status-success-border: #A7F3D0;
-    
-    --status-warning-bg: #FFFBEB;
-    --status-warning-fg: #B45309;
-    --status-warning-border: #FDE68A;
-    
-    --status-danger-bg: #FEF2F2;
-    --status-danger-fg: #B91C1C;
-    --status-danger-border: #FCA5A5;
-    
-    --status-info-bg: #EFF6FF;
-    --status-info-fg: #1D4ED8;
-    --status-info-border: #BFDBFE;
-  }
+  /* BMU orange (accent — indicators, highlights; use 600+ for text on white) */
+  --color-accent-50: #fff4ef;
+  --color-accent-100: #ffe5da;
+  --color-accent-200: #ffc8b2;
+  --color-accent-300: #ffa682;
+  --color-accent-400: #fe875c;
+  --color-accent-500: #fd6c40;
+  --color-accent-600: #e5522a;
+  --color-accent-700: #bf3f1d;
+  --color-accent-800: #98341b;
+  --color-accent-900: #7b2d1a;
 
-  body {
-    background-color: #F8FAFC;
-    color: #0F172A;
-    font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
+  /* Shape & depth: restrained, institutional */
+  --radius-card: 0.75rem;
+  --shadow-card: 0 1px 2px 0 rgb(1 24 43 / 0.05);
+  --shadow-raised: 0 4px 12px -2px rgb(1 24 43 / 0.08), 0 2px 4px -2px rgb(1 24 43 / 0.05);
+
+  --animate-fadeIn: fadeIn 160ms ease-out;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-2px); }
+    to { opacity: 1; transform: none; }
   }
 }
 
-/* Custom Scrollbars */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer base {
+  :root {
+    --surface-page: #f4f7fa;
+    --surface-card: #ffffff;
+    --text-strong: #0b1f33;
+    --border-subtle: #e2e8f0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--surface-page);
+    color: var(--text-strong);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--color-brand-100);
+    color: var(--color-brand-900);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+}
+
+/* Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -58,34 +96,19 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #94a3b8;
 }
 
-/* Visual reference badge styling */
-.badge-success {
-  background-color: var(--status-success-bg);
-  color: var(--status-success-fg);
-  border: 1px solid var(--status-success-border);
-}
-
-.badge-warning {
-  background-color: var(--status-warning-bg);
-  color: var(--status-warning-fg);
-  border: 1px solid var(--status-warning-border);
-}
-
-.badge-danger {
-  background-color: var(--status-danger-bg);
-  color: var(--status-danger-fg);
-  border: 1px solid var(--status-danger-border);
-}
-
-.badge-info {
-  background-color: var(--status-info-bg);
-  color: var(--status-info-fg);
-  border: 1px solid var(--status-info-border);
+/* Section eyebrow — small uppercase label used above headings across the portal */
+@utility eyebrow {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-slate-500);
 }

@@ -28,6 +28,12 @@ import {
   XCircle,
   Clock,
   Wifi,
+  Check,
+  UserRound,
+  DoorOpen,
+  ShieldCheck,
+  Info,
+  Lock,
 } from "lucide-react";
 
 interface OpenSessionInfo {
@@ -305,96 +311,148 @@ export default function StudentLiveAttendancePage() {
         subtitle="Verify campus presence and identity for the active class session"
         defaultRole="STUDENT"
       >
-        <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-5 sm:space-y-6 max-w-4xl mx-auto">
           {loadError && (
             <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" /> {loadError}
+              <AlertTriangle className="w-4 h-4 shrink-0" /> {loadError}
             </div>
           )}
 
-          {/* Session bar */}
+          {/* Session details */}
           {!info ? (
-            <div className="p-6 rounded-xl bg-white border border-slate-200 text-xs text-slate-500 flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" /> Checking for an active session…
+            <div className="p-5 rounded-xl bg-white border border-slate-200 text-xs text-slate-500 flex items-center gap-2 shadow-[var(--shadow-card)]">
+              <RefreshCw className="w-4 h-4 animate-spin text-brand-600" /> Checking for an active session…
             </div>
           ) : session ? (
-            <div className="p-4 rounded-xl bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800 shadow-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  <Radio className="w-5 h-5 animate-pulse" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold flex items-center gap-2 flex-wrap">
+            <section className="rounded-xl bg-brand-900 text-white p-5 sm:p-6 border border-brand-800 relative overflow-hidden">
+              <span className="absolute left-0 inset-y-0 w-1 bg-accent-500" />
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <p className="eyebrow text-brand-100/75">Attendance session</p>
+                    <Badge variant="success" size="sm">Session Active</Badge>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold leading-snug mt-2">
                     <span>
                       {session.subjectName} • {session.className}
                       {session.division ? ` (${session.division})` : ""}
                     </span>
-                    <Badge variant="success" size="sm">Session Active</Badge>
                   </h3>
-                  <p className="text-xs text-slate-300 mt-0.5">
-                    {session.teacherName}
-                    {session.room ? ` • ${session.room}` : ""} • {formatTime(session.startTime)} – {formatTime(session.endTime)} •
-                    late after {session.lateAfterMinutes} min
-                  </p>
                 </div>
+                <Badge variant="brand" size="sm" className="bg-white/10 text-white border-white/20 gap-1 self-start shrink-0">
+                  {session.mode === "PHYSICAL" ? <MapPin className="w-3 h-3" /> : <Wifi className="w-3 h-3" />}
+                  {session.mode === "PHYSICAL" ? (session.requiresLocation ? "Physical • campus check" : "Physical") : "Remote"}
+                </Badge>
               </div>
-              <Badge variant="purple" size="sm" className="bg-white/10 text-white border-white/20 gap-1">
-                {session.mode === "PHYSICAL" ? <MapPin className="w-3 h-3" /> : <Wifi className="w-3 h-3" />}
-                {session.mode === "PHYSICAL" ? (session.requiresLocation ? "Physical • campus check" : "Physical") : "Remote"}
-              </Badge>
-            </div>
+              <dl className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-3 text-xs">
+                <div className="min-w-0">
+                  <dt className="eyebrow text-brand-100/60">Teacher</dt>
+                  <dd className="font-medium mt-0.5 flex items-center gap-1.5 min-w-0">
+                    <UserRound className="w-3.5 h-3.5 text-brand-100/75 shrink-0" />
+                    <span className="truncate">{session.teacherName}</span>
+                  </dd>
+                </div>
+                <div className="min-w-0">
+                  <dt className="eyebrow text-brand-100/60">Time</dt>
+                  <dd className="font-medium mt-0.5 flex items-center gap-1.5 tabular-nums">
+                    <Clock className="w-3.5 h-3.5 text-brand-100/75 shrink-0" />
+                    {formatTime(session.startTime)} – {formatTime(session.endTime)}
+                  </dd>
+                </div>
+                <div className="min-w-0">
+                  <dt className="eyebrow text-brand-100/60">Late after</dt>
+                  <dd className="font-medium mt-0.5">late after {session.lateAfterMinutes} min</dd>
+                </div>
+                {session.room && (
+                  <div className="min-w-0">
+                    <dt className="eyebrow text-brand-100/60">Room</dt>
+                    <dd className="font-medium mt-0.5 flex items-center gap-1.5 min-w-0">
+                      <DoorOpen className="w-3.5 h-3.5 text-brand-100/75 shrink-0" />
+                      <span className="truncate">{session.room}</span>
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </section>
           ) : (
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-slate-800 text-slate-400">
+            <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-[var(--shadow-card)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-brand-50 border border-brand-100 text-brand-600 flex items-center justify-center shrink-0">
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-100">No active attendance session</h3>
-                  <p className="text-xs text-slate-400">
+                  <h3 className="text-sm font-semibold text-brand-950">No active attendance session</h3>
+                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
                     When your teacher opens attendance for your class it will appear here automatically.
                   </p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={loadInfo} className="text-xs border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 gap-1.5">
+              <Button variant="outline" size="sm" onClick={loadInfo} className="text-xs gap-1.5 shrink-0 self-start sm:self-auto">
                 <RefreshCw className="w-3.5 h-3.5" /> Refresh
               </Button>
             </div>
           )}
 
           {/* Pipeline tracker */}
-          <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-xs">
-            <p className="text-[11px] uppercase font-bold text-slate-400 mb-3 tracking-wider">Verification Pipeline</p>
-            <div className="grid grid-cols-5 gap-2 text-center text-xs font-semibold">
-              {PIPELINE.map(({ key, label, icon: Icon }) => {
+          <div className="p-4 sm:p-5 bg-white rounded-xl border border-slate-200 shadow-[var(--shadow-card)]">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <p className="eyebrow">Verification Pipeline</p>
+              <ShieldCheck className="w-4 h-4 text-brand-600" />
+            </div>
+            <ol className="flex items-start">
+              {PIPELINE.map(({ key, label, icon: Icon }, i) => {
                 const idx = ORDER.indexOf(key);
                 const isFailed = step === "FAILED" && failedAt === key;
                 const isCurrent = !isFailed && step !== "VERIFIED" && (step === key || (key === "VERIFIED" && step === "SUBMITTING"));
                 const isDone = step === "VERIFIED" || (stepIndex > idx && !isFailed && step !== "IDLE");
+                const isLast = i === PIPELINE.length - 1;
                 return (
-                  <div
-                    key={key}
-                    className={cn(
-                      "p-2 rounded-lg border transition-all",
-                      isFailed
-                        ? "bg-rose-50 border-rose-300 text-rose-700"
-                        : isCurrent
-                        ? "bg-indigo-50 border-indigo-300 text-indigo-700 ring-2 ring-indigo-200"
-                        : isDone
-                        ? key === "VERIFIED"
-                          ? "bg-emerald-600 text-white border-emerald-600"
-                          : "bg-emerald-50 border-emerald-200 text-emerald-700"
-                        : "bg-slate-50 border-slate-200 text-slate-400"
+                  <li key={key} className="relative flex-1 flex flex-col items-center text-center min-w-0">
+                    {!isLast && (
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "absolute top-[17px] left-1/2 w-full h-0.5",
+                          isDone ? "bg-emerald-500" : "bg-slate-200"
+                        )}
+                      />
                     )}
-                  >
-                    {isFailed ? <XCircle className="w-4 h-4 mx-auto mb-1" /> : <Icon className="w-4 h-4 mx-auto mb-1" />}
-                    <span className="text-[10px]">{label}</span>
-                  </div>
+                    <span
+                      className={cn(
+                        "relative z-10 w-9 h-9 rounded-full flex items-center justify-center border-2 transition-colors",
+                        isFailed
+                          ? "bg-rose-50 border-rose-400 text-rose-600"
+                          : isCurrent
+                          ? "bg-brand-700 border-brand-700 text-white ring-4 ring-brand-100"
+                          : isDone
+                          ? "bg-emerald-600 border-emerald-600 text-white"
+                          : "bg-white border-slate-200 text-slate-400"
+                      )}
+                    >
+                      {isCurrent && (
+                        <span aria-hidden="true" className="absolute -inset-[5px] rounded-full border-2 border-transparent border-t-accent-500 animate-spin" />
+                      )}
+                      {isFailed ? <XCircle className="w-4 h-4" /> : isDone ? <Check className="w-4 h-4" strokeWidth={3} /> : <Icon className="w-4 h-4" />}
+                    </span>
+                    <span
+                      className={cn(
+                        "mt-2 text-[10px] sm:text-xs font-semibold leading-tight px-0.5",
+                        isFailed ? "text-rose-700" : isCurrent ? "text-brand-800" : isDone ? "text-emerald-700" : "text-slate-400"
+                      )}
+                    >
+                      {label}
+                    </span>
+                    <span className="hidden sm:block text-[10px] text-slate-400 mt-0.5">
+                      {isFailed ? "Failed" : isCurrent ? "In progress" : isDone ? "Done" : "Pending"}
+                    </span>
+                  </li>
                 );
               })}
-            </div>
+            </ol>
             {session && !session.requiresLocation && (
-              <p className="text-[11px] text-slate-400 mt-2">
+              <p className="text-[11px] text-slate-500 mt-4 pt-3 border-t border-slate-100 flex items-start gap-1.5">
+                <Info className="w-3.5 h-3.5 text-brand-600 shrink-0 mt-px" />
                 {session.mode === "REMOTE"
                   ? "Remote session: campus location is not required; face and liveness are still verified."
                   : "Campus location enforcement is disabled by the administrator."}
@@ -403,63 +461,71 @@ export default function StudentLiveAttendancePage() {
           </div>
 
           {/* Verification surface */}
-          <Card className="overflow-hidden bg-slate-950 border-slate-800">
-            <CardContent className="p-8 flex flex-col items-center justify-center min-h-[400px] text-white gap-4">
+          <Card className="overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-brand-950 flex items-center gap-2">
+                <ScanFace className="w-4 h-4 text-brand-600" /> Identity verification
+              </p>
+              <span className="text-[11px] text-slate-500 flex items-center gap-1">
+                <Lock className="w-3 h-3" /> Secure check
+              </span>
+            </div>
+            <CardContent className="p-5 sm:p-8 flex flex-col items-center justify-center min-h-[340px] sm:min-h-[400px] gap-4">
               <div className={cameraVisible ? "w-full flex flex-col items-center gap-3" : "hidden"}>
                 {instruction && (
-                  <div className="flex items-center gap-3 text-base font-bold">
-                    {challengeStep === "TURN" && turnLeft && <ArrowLeft className="w-6 h-6 text-amber-400 animate-pulse" />}
+                  <div className="flex items-center justify-center gap-3 text-sm sm:text-base font-semibold text-brand-950 text-center px-3 py-2 rounded-lg bg-brand-50 border border-brand-100 w-full max-w-md">
+                    {challengeStep === "TURN" && turnLeft && <ArrowLeft className="w-5 h-5 text-accent-600 shrink-0" />}
                     <span>{instruction}</span>
-                    {challengeStep === "TURN" && !turnLeft && <ArrowRight className="w-6 h-6 text-amber-400 animate-pulse" />}
+                    {challengeStep === "TURN" && !turnLeft && <ArrowRight className="w-5 h-5 text-accent-600 shrink-0" />}
                   </div>
                 )}
                 <CameraView videoRef={camera.videoRef} active={camera.isActive} tone={tone} hint={hint} />
                 {step === "FACE" && !camera.isActive && (
-                  <p className="text-xs text-slate-400 flex items-center gap-2">
-                    <RefreshCw className="w-4 h-4 animate-spin text-indigo-400" /> Starting camera…
+                  <p className="text-xs text-slate-500 flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin text-brand-600" /> Starting camera…
                   </p>
                 )}
-                <Button variant="outline" size="sm" onClick={cancel} className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800 text-xs">
+                <Button variant="outline" size="sm" onClick={cancel} className="text-xs">
                   Cancel
                 </Button>
               </div>
 
               {(step === "LOCATION" || step === "SESSION" || step === "SUBMITTING") && (
                 <div className="text-center space-y-4 max-w-sm">
-                  <div className="w-16 h-16 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin mx-auto" />
+                  <div className="w-14 h-14 rounded-full border-4 border-brand-100 border-t-brand-700 animate-spin mx-auto" />
                   <div>
-                    <h3 className="text-base font-bold">
+                    <h3 className="text-base font-semibold text-brand-950">
                       {step === "LOCATION" && (session?.requiresLocation ? "Getting your location…" : "Preparing…")}
                       {step === "SESSION" && "Verifying session and campus distance…"}
                       {step === "SUBMITTING" && "Verifying liveness and identity…"}
                     </h3>
                     {step === "LOCATION" && session?.requiresLocation && (
-                      <p className="text-xs text-slate-400 mt-1">Allow location access when your browser asks. It is used only for this check.</p>
+                      <p className="text-xs text-slate-500 mt-1">Allow location access when your browser asks. It is used only for this check.</p>
                     )}
                   </div>
                 </div>
               )}
 
               {step === "IDLE" && (
-                <div className="text-center space-y-4 max-w-sm">
+                <div className="text-center space-y-4 w-full max-w-sm">
                   {info?.record ? (
                     <>
-                      <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto">
+                      <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto">
                         <CheckCircle2 className="w-8 h-8" />
                       </div>
-                      <h3 className="text-base font-bold">Attendance already recorded</h3>
-                      <p className="text-xs text-slate-400">
+                      <h3 className="text-base font-semibold text-brand-950">Attendance already recorded</h3>
+                      <p className="text-xs text-slate-600">
                         Marked {info.record.status} at {formatTime(info.record.markedAt)} for this session.
                       </p>
                     </>
                   ) : info && !info.faceEnrolled ? (
                     <>
-                      <div className="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center mx-auto">
+                      <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto">
                         <ScanFace className="w-8 h-8" />
                       </div>
-                      <h3 className="text-base font-bold">Face enrollment required</h3>
-                      <p className="text-xs text-slate-400">Enroll your face once before marking attendance.</p>
-                      <Link href="/student/face-enrollment">
+                      <h3 className="text-base font-semibold text-brand-950">Face enrollment required</h3>
+                      <p className="text-xs text-slate-600">Enroll your face once before marking attendance.</p>
+                      <Link href="/student/face-enrollment" className="inline-block">
                         <Button size="sm" className="text-xs gap-1.5">
                           Enroll Face <ArrowRight className="w-3.5 h-3.5" />
                         </Button>
@@ -467,18 +533,18 @@ export default function StudentLiveAttendancePage() {
                     </>
                   ) : (
                     <>
-                      <div className="w-16 h-16 rounded-2xl bg-indigo-600/30 text-indigo-400 border border-indigo-500/40 flex items-center justify-center mx-auto">
-                        <Camera className="w-8 h-8" />
+                      <div className="w-16 h-16 rounded-full bg-brand-50 text-brand-700 border border-brand-100 flex items-center justify-center mx-auto">
+                        <Camera className="w-7 h-7" />
                       </div>
                       <div>
-                        <h3 className="text-base font-bold">Mark Attendance</h3>
-                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                        <h3 className="text-base font-semibold text-brand-950">Mark Attendance</h3>
+                        <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                           {session?.requiresLocation
                             ? "We will check your location once, then verify your face with a short head-turn check."
                             : "We will verify your face with a short head-turn check."}
                         </p>
                       </div>
-                      <Button onClick={startVerification} disabled={!session} size="lg" className="w-full text-xs font-bold py-3">
+                      <Button onClick={startVerification} disabled={!session} size="lg" variant={session ? "accent" : "primary"} className="w-full">
                         {session ? "Mark Attendance" : "Waiting for an active session"}
                       </Button>
                     </>
@@ -487,16 +553,18 @@ export default function StudentLiveAttendancePage() {
               )}
 
               {step === "VERIFIED" && result && (
-                <div className="text-center space-y-4 max-w-sm">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <Badge variant={result.status === "LATE" ? "warning" : "success"} size="md" className="mb-2">
+                <div className="w-full max-w-md rounded-xl border border-emerald-200 bg-white overflow-hidden text-center animate-fadeIn">
+                  <div className="px-5 py-5 bg-emerald-50 border-b border-emerald-200 flex flex-col items-center gap-3">
+                    <div className="w-14 h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+                      <Check className="w-7 h-7" strokeWidth={3} />
+                    </div>
+                    <Badge variant={result.status === "LATE" ? "warning" : "success"} size="md">
                       ATTENDANCE MARKED: {result.status}
                     </Badge>
-                    <h3 className="text-base font-bold">Identity and presence verified</h3>
-                    <p className="text-xs text-slate-400 mt-1">
+                  </div>
+                  <div className="px-5 py-4">
+                    <h3 className="text-base font-semibold text-brand-950">Identity and presence verified</h3>
+                    <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
                       {result.subjectName} • {formatTime(result.markedAt)} • face similarity {Math.round(result.confidence * 100)}%
                       {result.location.verified && result.location.distanceMeters !== undefined
                         ? ` • ${result.location.distanceMeters} m from campus centre`
@@ -508,12 +576,12 @@ export default function StudentLiveAttendancePage() {
 
               {step === "FAILED" && (
                 <div className="text-center space-y-4 max-w-sm">
-                  <div className="w-16 h-16 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto">
                     <XCircle className="w-8 h-8" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold">Attendance not marked</h3>
-                    <p className="text-xs text-rose-300 mt-1 leading-relaxed">{error}</p>
+                    <h3 className="text-base font-semibold text-brand-950">Attendance not marked</h3>
+                    <p className="text-xs text-rose-700 mt-1 leading-relaxed">{error}</p>
                     {distance !== null && failedAt !== "LOCATION" && (
                       <p className="text-[11px] text-slate-500 mt-1">Location check passed ({distance} m from campus centre).</p>
                     )}
@@ -525,7 +593,7 @@ export default function StudentLiveAttendancePage() {
                     }}
                     variant="outline"
                     size="sm"
-                    className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800 text-xs gap-1.5"
+                    className="text-xs gap-1.5"
                   >
                     <RefreshCw className="w-3.5 h-3.5" /> Try Again
                   </Button>
@@ -534,8 +602,9 @@ export default function StudentLiveAttendancePage() {
             </CardContent>
           </Card>
 
-          <p className="text-[11px] text-slate-400 text-center">
-            Location is read once per attempt and only the distance from campus is stored. Camera frames never leave your device.
+          <p className="text-[11px] text-slate-500 text-center flex items-start sm:items-center justify-center gap-1.5 px-2">
+            <ShieldCheck className="w-3.5 h-3.5 text-brand-600 shrink-0 mt-px sm:mt-0" />
+            <span>Location is read once per attempt and only the distance from campus is stored. Camera frames never leave your device.</span>
           </p>
         </div>
       </AppShell>

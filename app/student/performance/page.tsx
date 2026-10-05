@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { LabeledBars } from "@/components/charts/LabeledBars";
-import { Award, FileText, AlertTriangle, RefreshCw } from "lucide-react";
+import { Award, FileText, AlertTriangle, RefreshCw, BarChart3 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 
@@ -55,20 +55,23 @@ export default function StudentPerformancePage() {
         <div className="space-y-6">
           {error && (
             <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" /> {error}
+              <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
             </div>
           )}
           {!data && !error && (
-            <div className="p-8 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200">
-              <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-600" /> Loading…
+            <div className="p-8 text-center text-xs text-slate-500 bg-white rounded-xl border border-slate-200 shadow-[var(--shadow-card)]">
+              <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" /> Loading…
             </div>
           )}
           {data && (
             <>
               {bySubject.size > 0 && (
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-bold">Quiz average by subject</CardTitle>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4 text-brand-600" /> Quiz average by subject
+                    </CardTitle>
+                    <CardDescription>Average quiz percentage per subject</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <LabeledBars
@@ -80,9 +83,9 @@ export default function StudentPerformancePage() {
                 </Card>
               )}
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm font-bold">
-                    <Award className="w-4 h-4 text-amber-500" /> Quiz results (25% of engagement)
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="w-4 h-4 text-accent-600" /> Quiz results (25% of engagement)
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -106,10 +109,10 @@ export default function StudentPerformancePage() {
                       ) : (
                         data.quizzes.map((q) => (
                           <TableRow key={q._id}>
-                            <TableCell className="font-semibold text-xs text-slate-900">{q.quizTitle}</TableCell>
+                            <TableCell className="font-semibold text-xs text-brand-950">{q.quizTitle}</TableCell>
                             <TableCell className="text-xs">{q.subjectName}</TableCell>
-                            <TableCell className="text-xs text-slate-500">{formatDate(q.dateTaken)}</TableCell>
-                            <TableCell className="text-xs font-mono font-bold">
+                            <TableCell className="text-xs text-slate-500 whitespace-nowrap">{formatDate(q.dateTaken)}</TableCell>
+                            <TableCell className="text-xs font-semibold tabular-nums text-brand-950 whitespace-nowrap">
                               {q.score} / {q.totalMarks} ({q.percentage}%)
                             </TableCell>
                             <TableCell>
@@ -126,9 +129,9 @@ export default function StudentPerformancePage() {
               </Card>
 
               <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm font-bold">
-                    <FileText className="w-4 h-4 text-blue-500" /> Assignments (20% of engagement)
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-brand-600" /> Assignments (20% of engagement)
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -153,12 +156,12 @@ export default function StudentPerformancePage() {
                         data.assignments.map((a) => (
                           <TableRow key={a._id}>
                             <TableCell className="text-xs">
-                              <p className="font-semibold text-slate-900">{a.title}</p>
-                              {a.feedback && <p className="text-slate-400">{a.feedback}</p>}
+                              <p className="font-semibold text-brand-950">{a.title}</p>
+                              {a.feedback && <p className="text-slate-500 mt-0.5">{a.feedback}</p>}
                             </TableCell>
                             <TableCell className="text-xs">{a.subjectName}</TableCell>
-                            <TableCell className="text-xs text-slate-500">{formatDate(a.dueDate)}</TableCell>
-                            <TableCell className="text-xs font-bold text-slate-800">{a.obtainedMarks !== undefined && a.obtainedMarks !== null ? `${a.obtainedMarks} / ${a.totalMarks}` : "—"}</TableCell>
+                            <TableCell className="text-xs text-slate-500 whitespace-nowrap">{formatDate(a.dueDate)}</TableCell>
+                            <TableCell className="text-xs font-semibold tabular-nums text-brand-950 whitespace-nowrap">{a.obtainedMarks !== undefined && a.obtainedMarks !== null ? `${a.obtainedMarks} / ${a.totalMarks}` : "—"}</TableCell>
                             <TableCell>
                               <Badge variant={assignmentVariant(a)} size="sm">
                                 {assignmentLabel(a)}

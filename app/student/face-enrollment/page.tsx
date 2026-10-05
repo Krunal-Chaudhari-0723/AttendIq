@@ -170,13 +170,13 @@ export default function StudentFaceEnrollmentPage() {
         subtitle="Register your face once so attendance can verify that it is really you"
         defaultRole="STUDENT"
       >
-        <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-5 sm:space-y-6 max-w-5xl mx-auto">
           {/* Privacy notice */}
-          <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 flex items-start gap-3 shadow-md">
-            <Lock className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+          <div className="flex gap-3 p-4 rounded-lg bg-brand-50/60 border border-brand-100 text-xs text-brand-900">
+            <Lock className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">How your face data is handled</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <h4 className="text-xs font-semibold text-brand-950">How your face data is handled</h4>
+              <p className="leading-relaxed text-brand-900/85">
                 Your camera image is processed on this device and is never uploaded or stored. Only a 128-number face
                 signature is sent, encrypted at rest, and used solely to confirm your identity when you mark attendance.
                 It is never shown to teachers, admins or other students.
@@ -185,99 +185,111 @@ export default function StudentFaceEnrollmentPage() {
           </div>
 
           {(error || cameraError) && (
-            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-start gap-2">
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-start gap-2 animate-fadeIn">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{cameraError || error}</span>
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5">
             {/* Camera surface */}
-            <Card className="lg:col-span-3 overflow-hidden bg-slate-950 border-slate-800">
-              <CardContent className="p-6 h-full flex flex-col items-center justify-center min-h-[380px] gap-4">
+            <Card className="lg:col-span-3 overflow-hidden flex flex-col">
+              <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-brand-950 flex items-center gap-2">
+                  <ScanFace className="w-4 h-4 text-brand-600" /> Biometric enrollment
+                </p>
+                <Badge variant="brand" size="sm" className="gap-1">
+                  <ShieldCheck className="w-3 h-3" /> On-device
+                </Badge>
+              </div>
+              <CardContent className="p-5 sm:p-6 flex-1 flex flex-col items-center justify-center min-h-[340px] sm:min-h-[380px] gap-4">
                 <div className={cameraVisible ? "w-full flex justify-center" : "hidden"}>
                   <CameraView videoRef={camera.videoRef} active={camera.isActive} tone={tone} hint={hint} />
                 </div>
 
                 {phase === "PREPARING" && !camera.isActive && (
-                  <div className="text-center text-slate-300 text-xs flex items-center gap-2">
-                    <RefreshCw className="w-4 h-4 animate-spin text-indigo-400" /> Loading face models and requesting camera access…
+                  <div className="text-center text-slate-600 text-xs flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin text-brand-600 shrink-0" /> Loading face models and requesting camera access…
                   </div>
                 )}
 
                 {phase === "SCANNING" && (
-                  <Button variant="outline" size="sm" onClick={resetCamera} className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800 text-xs">
+                  <Button variant="outline" size="sm" onClick={resetCamera} className="text-xs">
                     Cancel
                   </Button>
                 )}
 
                 {phase === "LOADING" && (
-                  <div className="text-slate-400 text-xs flex items-center gap-2">
-                    <RefreshCw className="w-4 h-4 animate-spin" /> Checking enrollment status…
+                  <div className="text-slate-500 text-xs flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin text-brand-600" /> Checking enrollment status…
                   </div>
                 )}
 
                 {phase === "SUBMITTING" && (
                   <div className="text-center space-y-3">
-                    <div className="w-14 h-14 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin mx-auto" />
-                    <p className="text-sm font-semibold text-white">Verifying with the server…</p>
+                    <div className="w-14 h-14 rounded-full border-4 border-brand-100 border-t-brand-700 animate-spin mx-auto" />
+                    <p className="text-sm font-semibold text-brand-950">Verifying with the server…</p>
                   </div>
                 )}
 
                 {phase === "INTRO" && (
-                  <div className="text-center space-y-4 max-w-sm">
-                    <div className="w-16 h-16 rounded-2xl bg-indigo-600/30 text-indigo-400 border border-indigo-500/40 flex items-center justify-center mx-auto">
-                      <ScanFace className="w-8 h-8" />
+                  <div className="text-center space-y-4 w-full max-w-sm">
+                    <div className="w-20 h-20 rounded-full bg-brand-50 text-brand-700 border border-brand-100 flex items-center justify-center mx-auto">
+                      <ScanFace className="w-9 h-9" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white">Enroll your face</h3>
-                      <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      <h3 className="text-base font-semibold text-brand-950">Enroll your face</h3>
+                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                         We will capture {ENROLL_SAMPLES} quick samples while you look straight at the camera. This is done once.
                       </p>
                     </div>
-                    <Button onClick={startEnrollment} size="lg" className="w-full text-xs font-bold py-3 gap-2">
+                    <Button onClick={startEnrollment} size="lg" variant="accent" className="w-full gap-2">
                       <Camera className="w-4 h-4" /> Start Camera & Enroll
                     </Button>
                   </div>
                 )}
 
                 {phase === "DONE" && (
-                  <div className="text-center space-y-4 max-w-sm">
-                    <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto">
-                      <CheckCircle2 className="w-8 h-8" />
+                  <div className="w-full max-w-sm rounded-xl border border-emerald-200 overflow-hidden text-center animate-fadeIn">
+                    <div className="px-5 py-5 bg-emerald-50 border-b border-emerald-200 flex justify-center">
+                      <div className="w-14 h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+                        <CheckCircle2 className="w-7 h-7" />
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-base font-bold text-white">Enrollment completed</h3>
-                      <p className="text-xs text-slate-400 mt-1">You can now mark attendance with face verification.</p>
+                    <div className="px-5 py-4 space-y-4">
+                      <div>
+                        <h3 className="text-base font-semibold text-brand-950">Enrollment completed</h3>
+                        <p className="text-xs text-slate-600 mt-1">You can now mark attendance with face verification.</p>
+                      </div>
+                      <Link href="/student/live-attendance" className="inline-block">
+                        <Button size="sm" className="text-xs gap-1.5">
+                          Go to Live Attendance <ArrowRight className="w-3.5 h-3.5" />
+                        </Button>
+                      </Link>
                     </div>
-                    <Link href="/student/live-attendance">
-                      <Button size="sm" className="text-xs gap-1.5">
-                        Go to Live Attendance <ArrowRight className="w-3.5 h-3.5" />
-                      </Button>
-                    </Link>
                   </div>
                 )}
 
                 {phase === "ENROLLED" && (
-                  <div className="text-center space-y-4 max-w-sm">
-                    <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto">
+                  <div className="text-center space-y-4 w-full max-w-sm">
+                    <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto">
                       <ShieldCheck className="w-8 h-8" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white">Your face is enrolled</h3>
-                      <p className="text-xs text-slate-400 mt-1">
+                      <h3 className="text-base font-semibold text-brand-950">Your face is enrolled</h3>
+                      <p className="text-xs text-slate-600 mt-1">
                         Optionally run a quick identity check to confirm recognition works on this device.
                       </p>
                     </div>
                     {testResult && (
                       <div
-                        className={`p-3 rounded-lg border text-xs text-left ${
+                        className={`p-3 rounded-lg border text-xs text-left animate-fadeIn ${
                           testResult.matched
-                            ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
-                            : "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                            ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                            : "bg-rose-50 border-rose-200 text-rose-800"
                         }`}
                       >
-                        <p className="font-bold flex items-center gap-1.5">
+                        <p className="font-semibold flex items-center gap-1.5">
                           {testResult.matched ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                           {testResult.matched ? "Identity matched" : "Identity not matched"} • similarity{" "}
                           {Math.round(testResult.confidence * 100)}%
@@ -285,12 +297,7 @@ export default function StudentFaceEnrollmentPage() {
                         <p className="mt-1 opacity-90">{testResult.reason}</p>
                       </div>
                     )}
-                    <Button
-                      onClick={runIdentityTest}
-                      variant="outline"
-                      size="sm"
-                      className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800 text-xs gap-1.5"
-                    >
+                    <Button onClick={runIdentityTest} variant="outline" size="sm" className="text-xs gap-1.5">
                       <ScanFace className="w-3.5 h-3.5" /> Test Identity Check
                     </Button>
                   </div>
@@ -299,36 +306,40 @@ export default function StudentFaceEnrollmentPage() {
             </Card>
 
             {/* Status + guidance */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-5">
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <ScanFace className="w-4 h-4 text-indigo-600" /> Enrollment Status
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-brand-600" /> Enrollment Status
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-500">Status</span>
-                    {status?.enrolled ? (
-                      <Badge variant="success" size="sm">Enrolled</Badge>
-                    ) : (
-                      <Badge variant="warning" size="sm">Not enrolled</Badge>
-                    )}
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Enrolled on</span>
-                    <span className="font-semibold text-slate-800">{status?.enrolledAt ? formatDate(status.enrolledAt) : "—"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Samples</span>
-                    <span className="font-semibold text-slate-800">{status?.sampleCount || "—"}</span>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <span className="text-slate-500 shrink-0">Model</span>
-                    <span className="font-mono text-[10px] text-slate-600 text-right break-all">{status?.modelVersion || "—"}</span>
-                  </div>
+                <CardContent className="text-xs p-0">
+                  <dl className="divide-y divide-slate-100">
+                    <div className="flex justify-between items-center gap-4 px-5 py-3">
+                      <dt className="text-slate-500">Status</dt>
+                      <dd>
+                        {status?.enrolled ? (
+                          <Badge variant="success" size="sm">Enrolled</Badge>
+                        ) : (
+                          <Badge variant="warning" size="sm">Not enrolled</Badge>
+                        )}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4 px-5 py-3">
+                      <dt className="text-slate-500">Enrolled on</dt>
+                      <dd className="font-semibold text-brand-950 tabular-nums">{status?.enrolledAt ? formatDate(status.enrolledAt) : "—"}</dd>
+                    </div>
+                    <div className="flex justify-between gap-4 px-5 py-3">
+                      <dt className="text-slate-500">Samples</dt>
+                      <dd className="font-semibold text-brand-950 tabular-nums">{status?.sampleCount || "—"}</dd>
+                    </div>
+                    <div className="flex justify-between gap-4 px-5 py-3">
+                      <dt className="text-slate-500 shrink-0">Model</dt>
+                      <dd className="font-mono text-[10px] text-slate-600 text-right break-all">{status?.modelVersion || "—"}</dd>
+                    </div>
+                  </dl>
                   {status?.enrolled && (
-                    <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+                    <p className="text-[11px] text-slate-500 px-5 py-3 border-t border-slate-100 bg-slate-50/60 rounded-b-xl leading-relaxed">
                       Need to re-enroll (new glasses, major appearance change)? Ask your administrator to authorize re-enrollment.
                     </p>
                   )}
@@ -336,18 +347,18 @@ export default function StudentFaceEnrollmentPage() {
               </Card>
 
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-bold">Tips for a good capture</CardTitle>
+                <CardHeader>
+                  <CardTitle>Tips for a good capture</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-xs text-slate-600">
+                  <ul className="space-y-2.5 text-xs text-slate-600">
                     {[
                       "Face a light source; avoid bright windows behind you",
                       "Keep only your face in the frame",
                       "Remove masks or sunglasses",
                       "Hold the device at eye level and look straight ahead",
                     ].map((tip) => (
-                      <li key={tip} className="flex items-start gap-2">
+                      <li key={tip} className="flex items-start gap-2 leading-relaxed">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" /> {tip}
                       </li>
                     ))}

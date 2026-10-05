@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { EmptyState } from "@/components/ui/states";
 import { apiFetch } from "@/lib/api";
-import { Calendar, Plus, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Calendar, Plus, RefreshCw, CheckCircle2, AlertTriangle } from "lucide-react";
 
 interface AcademicYearItem {
   _id: string;
@@ -103,40 +104,38 @@ export default function AdminAcademicYearsPage() {
       >
         <div className="space-y-6">
           {actionSuccess && (
-            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold animate-fadeIn">
+            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2 animate-fadeIn">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               {actionSuccess}
             </div>
           )}
 
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-slate-800">Academic Sessions</h3>
-              <p className="text-xs text-slate-500">Only one academic session can remain active at a time</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => {
-                  setIsLoading(true);
-                  fetchYears();
-                }} className="text-xs gap-1.5">
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setIsAddModalOpen(true)}
-                className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 shadow-sm"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Academic Year
-              </Button>
-            </div>
-          </div>
-
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-indigo-600" />
-                <span>Academic Session Calendar</span>
-              </CardTitle>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 space-y-0">
+              <div className="min-w-0">
+                <h3 className="eyebrow text-brand-600 mb-0.5">Academic Sessions</h3>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-brand-600" />
+                  <span>Academic Session Calendar</span>
+                </CardTitle>
+                <p className="text-xs text-slate-500 mt-1">Only one academic session can remain active at a time</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <Button variant="outline" size="sm" onClick={() => {
+                    setIsLoading(true);
+                    fetchYears();
+                  }} className="text-xs gap-1.5">
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="text-xs gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Academic Year
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -153,26 +152,28 @@ export default function AdminAcademicYearsPage() {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">
-                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-600" />
+                      <TableCell colSpan={6} className="text-center py-8 text-xs text-slate-500">
+                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" />
                         Loading sessions...
                       </TableCell>
                     </TableRow>
                   ) : academicYears.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-xs text-slate-500">
-                        No academic years configured.
+                      <TableCell colSpan={6} className="p-0">
+                        <EmptyState icon={Calendar} title="No academic years configured." />
                       </TableCell>
                     </TableRow>
                   ) : (
                     academicYears.map((year) => (
-                      <TableRow key={year._id}>
-                        <TableCell className="font-mono text-xs font-bold text-slate-800">
-                          {year.name}
+                      <TableRow key={year._id} className={year.isActive ? "bg-emerald-50/40" : undefined}>
+                        <TableCell>
+                          <Badge variant="brand" size="sm" className="font-mono">
+                            {year.name}
+                          </Badge>
                         </TableCell>
-                        <TableCell className="text-xs">{new Date(year.startDate).toLocaleDateString()}</TableCell>
-                        <TableCell className="text-xs">{new Date(year.endDate).toLocaleDateString()}</TableCell>
-                        <TableCell className="text-xs text-slate-500">{year.description || "Regular Session"}</TableCell>
+                        <TableCell className="text-xs tabular-nums whitespace-nowrap">{new Date(year.startDate).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-xs tabular-nums whitespace-nowrap">{new Date(year.endDate).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-xs text-slate-500 min-w-40">{year.description || "Regular Session"}</TableCell>
                         <TableCell>
                           {year.isActive ? (
                             <Badge variant="success" size="sm" className="gap-1">
@@ -190,7 +191,7 @@ export default function AdminAcademicYearsPage() {
                               size="sm"
                               variant="outline"
                               onClick={() => handleActivateYear(year._id, year.name)}
-                              className="text-xs hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300"
+                              className="text-xs whitespace-nowrap"
                             >
                               Set as Active
                             </Button>
@@ -213,72 +214,76 @@ export default function AdminAcademicYearsPage() {
           subtitle="Configure new term period and activate if required"
         >
           {formError && (
-            <div className="p-3 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+            <div className="p-3 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2 animate-fadeIn">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-px" />
               {formError}
             </div>
           )}
-          <form onSubmit={handleCreateYear} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Academic Year Title *</label>
-              <Input
-                required
-                placeholder="e.g. 2026-2027"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="text-xs"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Start Date *</label>
+          <form onSubmit={handleCreateYear} className="space-y-5">
+            <div className="space-y-3">
+              <p className="eyebrow text-brand-600">Session period</p>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700">Academic Year Title *</label>
                 <Input
-                  type="date"
                   required
-                  value={formData.startDate}
-                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                  className="text-xs"
+                  placeholder="e.g. 2026-2027"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="text-sm"
                 />
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">End Date *</label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">Start Date *</label>
+                  <Input
+                    type="date"
+                    required
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700">End Date *</label>
+                  <Input
+                    type="date"
+                    required
+                    value={formData.endDate}
+                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700">Description</label>
                 <Input
-                  type="date"
-                  required
-                  value={formData.endDate}
-                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  className="text-xs"
+                  placeholder="e.g. Regular Academic Year"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="text-sm"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Description</label>
-              <Input
-                placeholder="e.g. Regular Academic Year"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="text-xs"
-              />
-            </div>
-
-            <div className="pt-1">
-              <label className="flex items-center gap-2 cursor-pointer">
+            <div className="border-t border-slate-100 pt-5">
+              <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-slate-200 bg-slate-50/60 hover:border-brand-200">
                 <input
                   type="checkbox"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="rounded bg-slate-100 border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                  className="rounded bg-slate-100 border-slate-300 text-brand-600 focus:ring-brand-500 w-4 h-4 mt-px accent-brand-700"
                 />
                 <span className="text-xs text-slate-700 font-medium">Set as currently active academic year</span>
               </label>
             </div>
 
-            <div className="pt-2 flex justify-end gap-2">
+            <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => setIsAddModalOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" variant="primary" size="sm" disabled={formSubmitting} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              <Button type="submit" variant="primary" size="sm" disabled={formSubmitting}>
                 {formSubmitting ? "Saving..." : "Save Academic Year"}
               </Button>
             </div>

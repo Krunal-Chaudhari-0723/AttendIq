@@ -29,7 +29,7 @@ interface SessionRow {
   attendanceRate: number | null;
 }
 
-const statusVariant = (s: string) => (s === "ACTIVE" ? "success" : s === "SCHEDULED" ? "purple" : s === "CANCELLED" ? "neutral" : "info");
+const statusVariant = (s: string) => (s === "ACTIVE" ? "success" : s === "SCHEDULED" ? "brand" : s === "CANCELLED" ? "neutral" : "info");
 
 export default function TeacherAttendancePage() {
   const [sessions, setSessions] = useState<SessionRow[] | null>(null);
@@ -51,21 +51,21 @@ export default function TeacherAttendancePage() {
         <div className="space-y-6">
           {error && (
             <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" /> {error}
+              <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
             </div>
           )}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-bold flex items-center gap-2">
-                <CalendarCheck className="w-4 h-4 text-indigo-600" /> Sessions
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 space-y-0">
+              <CardTitle className="flex items-center gap-2">
+                <CalendarCheck className="w-4 h-4 text-brand-600" /> Sessions
               </CardTitle>
               <div className="flex gap-2">
                 <Link href="/teacher/live-attendance">
-                  <Button size="sm" className="text-xs gap-1.5">
+                  <Button size="sm">
                     <Radio className="w-3.5 h-3.5" /> Live Attendance
                   </Button>
                 </Link>
-                <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={() => setReloadKey((k) => k + 1)}>
+                <Button variant="outline" size="sm" onClick={() => setReloadKey((k) => k + 1)}>
                   <RefreshCw className="w-3.5 h-3.5" /> Refresh
                 </Button>
               </div>
@@ -88,39 +88,39 @@ export default function TeacherAttendancePage() {
                 <TableBody>
                   {!sessions ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-xs text-slate-400">
-                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-600" /> Loading sessions…
+                      <TableCell colSpan={9} className="text-left sm:text-center py-10 text-xs text-slate-500">
+                        <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-brand-600" /> Loading sessions…
                       </TableCell>
                     </TableRow>
                   ) : sessions.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-xs text-slate-500">
+                      <TableCell colSpan={9} className="text-left sm:text-center py-10 text-xs text-slate-500">
                         No sessions yet. Start one from Live Attendance.
                       </TableCell>
                     </TableRow>
                   ) : (
                     sessions.map((s) => (
                       <TableRow key={s.id}>
-                        <TableCell className="text-xs">
+                        <TableCell className="text-xs whitespace-nowrap tabular-nums font-medium text-slate-800">
                           {formatDate(s.startTime)}
-                          <span className="block text-slate-400">{formatTime(s.startTime)} – {formatTime(s.endTime)}</span>
+                          <span className="block text-[11px] font-normal text-slate-500">{formatTime(s.startTime)} – {formatTime(s.endTime)}</span>
                         </TableCell>
-                        <TableCell className="text-xs font-semibold text-slate-900">{s.subjectName}</TableCell>
-                        <TableCell className="text-xs">{s.className}{s.division ? ` (${s.division})` : ""}</TableCell>
-                        <TableCell className="text-xs">{s.mode}</TableCell>
+                        <TableCell className="text-xs font-semibold text-brand-950">{s.subjectName}</TableCell>
+                        <TableCell className="text-xs text-slate-600 whitespace-nowrap">{s.className}{s.division ? ` (${s.division})` : ""}</TableCell>
+                        <TableCell><Badge variant="neutral" size="sm">{s.mode}</Badge></TableCell>
                         <TableCell>
                           <Badge variant={statusVariant(s.status)} size="sm">{s.status}</Badge>
                         </TableCell>
-                        <TableCell className="text-center text-xs font-semibold text-emerald-700">{s.present}</TableCell>
-                        <TableCell className="text-center text-xs font-semibold text-amber-700">{s.late}</TableCell>
-                        <TableCell className="text-center text-xs font-semibold text-rose-700">{s.absent}</TableCell>
-                        <TableCell className="text-center text-xs font-bold">{s.attendanceRate === null ? "—" : `${s.attendanceRate}%`}</TableCell>
+                        <TableCell className="text-center text-sm tabular-nums font-semibold text-emerald-700">{s.present}</TableCell>
+                        <TableCell className="text-center text-sm tabular-nums font-semibold text-amber-700">{s.late}</TableCell>
+                        <TableCell className="text-center text-sm tabular-nums font-semibold text-rose-700">{s.absent}</TableCell>
+                        <TableCell className="text-center text-sm tabular-nums font-semibold text-brand-950">{s.attendanceRate === null ? "—" : `${s.attendanceRate}%`}</TableCell>
                       </TableRow>
                     ))
                   )}
                 </TableBody>
               </Table>
-              <p className="text-[11px] text-slate-400 mt-2">Rate = (present + late) ÷ (present + late + absent). Excused records are excluded.</p>
+              <p className="text-[11px] text-slate-500 mt-3">Rate = (present + late) ÷ (present + late + absent). Excused records are excluded.</p>
             </CardContent>
           </Card>
         </div>
