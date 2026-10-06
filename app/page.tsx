@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Sparkles, MapPin, ScanFace, Activity, AlertTriangle, Lightbulb, ArrowRight, CheckCircle2, Users, GraduationCap, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BMU, BMUCrest, BMULogo } from "@/components/brand/BMUBrand";
+import { DeveloperCredit } from "@/components/brand/DeveloperCredit";
 
 
 export default function Home() {
@@ -117,6 +118,7 @@ export default function Home() {
       <footer className="border-t border-slate-200 bg-white py-6 px-4 sm:px-6 text-center text-xs text-slate-500 space-y-1">
         <p className="font-semibold text-brand-900">{BMU.name}, Surat</p>
         <p>AttendIQ — Smart Attendance & Student Engagement System • Hackathon prototype</p>
+        <DeveloperCredit className="pt-1" />
       </footer>
     </div>
   );

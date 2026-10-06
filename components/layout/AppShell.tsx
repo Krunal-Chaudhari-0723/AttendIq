@@ -6,6 +6,7 @@ import { Sidebar, UserRole } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { PageHeader } from "./PageHeader";
 import { BMU } from "@/components/brand/BMUBrand";
+import { DeveloperCredit } from "@/components/brand/DeveloperCredit";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -56,6 +57,9 @@ export function AppShell({ children, title, subtitle }: AppShellProps) {
             <p>
               {BMU.product} — {BMU.tagline}
             </p>
+          </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-3">
+            <DeveloperCredit className="sm:text-center" />
           </div>
         </footer>
       </div>

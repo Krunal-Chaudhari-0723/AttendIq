@@ -18,6 +18,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { BMULogo } from "@/components/brand/BMUBrand";
+import { DeveloperCredit } from "@/components/brand/DeveloperCredit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserRole } from "@/components/layout/Sidebar";
@@ -158,11 +159,14 @@ export default function LoginPage() {
           {SHOW_DEMO_CREDENTIALS && <DemoAccounts tone="dark" className="hidden lg:block" />}
         </div>
 
-        <div className="relative hidden sm:flex text-[11px] text-brand-100/60 items-center justify-between gap-4 border-t border-white/10 pt-5">
-          <p>
-            <span className="text-white/90 font-medium">Bhagwan Mahavir University</span> · Vesu, Surat, Gujarat
-          </p>
-          <p>© 2026 AttendIQ</p>
+        <div className="relative hidden sm:block border-t border-white/10 pt-5 space-y-1.5">
+          <div className="flex text-[11px] text-brand-100/60 items-center justify-between gap-4">
+            <p>
+              <span className="text-white/90 font-medium">Bhagwan Mahavir University</span> · Vesu, Surat, Gujarat
+            </p>
+            <p>© 2026 AttendIQ</p>
+          </div>
+          <DeveloperCredit tone="dark" />
         </div>
       </div>
 
@@ -295,6 +299,7 @@ export default function LoginPage() {
         <p className="sm:hidden text-[11px] text-slate-500 text-center">
           <span className="font-medium text-brand-800">Bhagwan Mahavir University</span> · Vesu, Surat, Gujarat
         </p>
+        <DeveloperCredit className="sm:hidden text-center -mt-2" />
       </div>
     </div>
   );
